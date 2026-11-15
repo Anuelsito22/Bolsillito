@@ -1,6 +1,6 @@
 /* Bolsillo: service worker. Guarda la app para usarla sin conexión.
    Cambia el número de versión cada vez que subas un index.html nuevo. */
-const CACHE = 'bolsillo-1.5.0';
+const CACHE = 'bolsillo-2.0.0';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 
