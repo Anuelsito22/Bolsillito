@@ -532,6 +532,24 @@ html.is-standalone .app { height: 100vh; }
 .switch[aria-checked="true"] i { transform: translateX(20px); }
 .divider { height: 1px; background: var(--line); }
 
+/* Guía del atajo de dos toques */
+.guide { gap: 14px; padding: 14px; }
+.guide__part { font: 700 16px/1.25 var(--font-display); letter-spacing: -.02em; }
+.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; counter-reset: step var(--from, 0); }
+.steps > li { counter-increment: step; display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: start; }
+.steps > li::before {
+  content: counter(step); display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--accent-soft); color: var(--accent-text); font: 700 13px/1 var(--font-body); font-variant-numeric: tabular-nums;
+}
+.steps > li > div { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding-top: 2px; }
+.addr {
+  display: block; padding: 10px 12px; border-radius: 12px; background: var(--surface);
+  font: 500 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere;
+  -webkit-user-select: all; user-select: all;
+}
+.guide .btn { background: var(--surface); }
+.guide .btn--primary { background: var(--accent); }
+
 /* ==========================================================================
    BARRA FLOTANTE
    ========================================================================== */
@@ -709,6 +727,8 @@ html.is-standalone .app { height: 100vh; }
 @keyframes splashZoom { to { transform: scale(1.22); } }
 @keyframes splashOut { to { opacity: 0; visibility: hidden; } }
 :root[data-motion="off"] .splash { display: none; }
+/* Entrada por el atajo de dos toques: sin portada, directo al formulario. */
+html.is-quick .splash { display: none; }
 @media (prefers-reduced-motion: reduce) { .splash { display: none; } }
 
 /* El monto recién guardado vuela desde el botón + hasta el saldo. */
@@ -738,6 +758,7 @@ html.is-standalone .app { height: 100vh; }
   } catch (e) {}
   try {
     var look = JSON.parse(localStorage.getItem('bolsillo:look'));
+    if ((look && look.quick) || /[?&]nuevo=gasto\b/.test(location.search) || location.hash === '#nuevo-gasto') root.classList.add('is-quick');
     if (look) {
       if (look.mode === 'light' || look.mode === 'dark') root.setAttribute('data-mode', look.mode);
       root.setAttribute('data-dark', look.dark === 'black' ? 'black' : 'navy');
@@ -939,6 +960,44 @@ html.is-standalone .app { height: 100vh; }
           <div class="toggle-row">
             <span id="autorate-label"><b>Actualizar sola</b><small>Consulta la tasa oficial al abrir la app</small></span>
             <button type="button" class="switch" id="s-autorate" role="switch" aria-checked="true" aria-labelledby="autorate-label"><i></i></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="group">
+        <h2 class="group__title">Apunta con dos toques</h2>
+        <div class="card box">
+          <p>Toca dos veces la parte de atrás del iPhone y Bolsillo se abre listo para apuntar un gasto. Se configura una sola vez.</p>
+          <button type="button" class="btn" id="btn-guide" aria-expanded="false" aria-controls="guide">Ver los pasos</button>
+
+          <div class="panel guide" id="guide" hidden>
+            <h3 class="guide__part">Primero, crea el atajo</h3>
+            <ol class="steps">
+              <li><div>
+                <span>Copia la dirección de tu app.</span>
+                <code class="addr" id="guide-addr"></code>
+                <button type="button" class="btn" id="guide-copy">Copiar dirección</button>
+              </div></li>
+              <li><div>
+                <span>Abre la app Atajos y crea un atajo nuevo con el botón +. Busca la acción «Abrir URL», añádela y pega la dirección.</span>
+                <button type="button" class="btn btn--primary" id="guide-open" hidden>Abrir Atajos</button>
+              </div></li>
+              <li><div><span>Ponle de nombre «Añadir gasto» y toca Listo.</span></div></li>
+            </ol>
+
+            <h3 class="guide__part">Después, elígelo en los ajustes del iPhone</h3>
+            <ol class="steps" style="--from:3">
+              <li><div><span>Abre Ajustes y entra en Accesibilidad, luego en Tocar.</span></div></li>
+              <li><div><span>Baja hasta el final y entra en «Tocar atrás».</span></div></li>
+              <li><div><span>Elige «Tocar dos veces» y marca el atajo «Añadir gasto».</span></div></li>
+            </ol>
+            <p>Pruébalo con dos toques firmes en la parte de atrás. Si Bolsillo se abre pero no aparece el formulario, activa la opción de abajo.</p>
+          </div>
+
+          <div class="divider" aria-hidden="true"></div>
+          <div class="toggle-row">
+            <span id="quick-label"><b>Abrir en nuevo gasto</b><small>Cada vez que entres a Bolsillo aparece el formulario de gasto. Se cierra deslizándolo hacia abajo.</small></span>
+            <button type="button" class="switch" id="s-quick" role="switch" aria-checked="false" aria-labelledby="quick-label"><i></i></button>
           </div>
         </div>
       </div>
@@ -1285,6 +1344,7 @@ function defaultState() {
       theme: 'system', dark: 'navy', accent: 'violeta', glow: true, motion: true,
       rates: { usd: 0, eur: 0, updatedAt: null, effectiveDate: null, source: null },
       autoRate: true,
+      quickAdd: false,
     },
     transactions: [],
   };
@@ -1373,6 +1433,7 @@ function sanitizeState(raw) {
     source: r.source === 'bcv' || r.source === 'manual' ? r.source : null,
   };
   base.settings.autoRate = s.autoRate !== false;
+  base.settings.quickAdd = s.quickAdd === true;
   base.transactions = raw.transactions.map(sanitizeTransaction).filter(Boolean);
   if (raw.transactions.length && !base.transactions.length) {
     throw new Error('La copia no tiene movimientos válidos.');
@@ -1595,6 +1656,7 @@ function applyAppearance() {
       dark: st.dark,
       glow: st.glow ? 'on' : 'off',
       motion: st.motion ? 'on' : 'off',
+      quick: st.quickAdd === true,
       vars: { '--accent-l': a.l, '--accent-ink-l': a.lInk, '--accent-d': a.d, '--accent-ink-d': a.dInk },
     }));
   } catch (err) { /* sin almacenamiento: se aplicará al cargar el script */ }
@@ -1737,6 +1799,7 @@ function renderSettings() {
   }
   $('#rate-status').textContent = rateStatusText();
   $('#s-autorate').setAttribute('aria-checked', String(state.settings.autoRate));
+  $('#s-quick').setAttribute('aria-checked', String(state.settings.quickAdd));
   setSeg($('#s-theme'), THEMES.indexOf(state.settings.theme));
   setSeg($('#s-dark'), DARK_STYLES.indexOf(state.settings.dark));
   $('#s-accent').innerHTML = Object.entries(ACCENTS).map(([id, a]) => `
@@ -1744,7 +1807,7 @@ function renderSettings() {
   $('#s-glow').setAttribute('aria-checked', String(state.settings.glow));
   $('#s-motion').setAttribute('aria-checked', String(state.settings.motion));
   $('#storage-note').textContent = Store.available
-    ? 'Bolsillo 1.0. Tus datos se guardan solo en este navegador; exporta una copia de vez en cuando.'
+    ? 'Bolsillo 1.5. Tus datos se guardan solo en este navegador; exporta una copia de vez en cuando.'
     : 'Este navegador no deja guardar datos. Exporta una copia antes de cerrar para no perder tus movimientos.';
 }
 
@@ -2117,6 +2180,51 @@ $('#s-autorate').addEventListener('click', () => {
   state.settings.autoRate = !state.settings.autoRate;
   persist(); renderSettings();
 });
+/* ---- Atajo de dos toques (Tocar atrás del iPhone) ----
+   iOS deja asignar un atajo de la app Atajos al gesto de tocar dos veces la parte de atrás.
+   Ese atajo abre la app instalada con una dirección webapp:// (la misma de la app, sin https).
+   Si la dirección llega con ?nuevo=gasto se abre el formulario; como iOS no siempre la entrega,
+   existe además la opción "Abrir en nuevo gasto", que no depende de eso. */
+const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+function shortcutAddress() {
+  if (insideClaude || framed || !/^https?:$/.test(location.protocol)) return '';
+  return 'webapp://' + location.host + location.pathname.replace(/index\.html$/, '') + '?nuevo=gasto';
+}
+function paintGuide() {
+  const addr = shortcutAddress();
+  $('#guide-addr').textContent = addr || 'Abre estos pasos desde la app instalada en tu iPhone y aquí aparecerá tu dirección.';
+  $('#guide-copy').disabled = !addr;
+  $('#guide-open').hidden = !(addr && isIOS);
+}
+$('#btn-guide').addEventListener('click', () => {
+  const panel = $('#guide');
+  panel.hidden = !panel.hidden;
+  $('#btn-guide').setAttribute('aria-expanded', String(!panel.hidden));
+  $('#btn-guide').textContent = panel.hidden ? 'Ver los pasos' : 'Ocultar los pasos';
+  if (!panel.hidden) paintGuide();
+});
+$('#guide-copy').addEventListener('click', async () => {
+  const addr = shortcutAddress();
+  if (!addr) return;
+  try {
+    await navigator.clipboard.writeText(addr);
+    toast('Dirección copiada');
+  } catch (err) {
+    const range = document.createRange();
+    range.selectNodeContents($('#guide-addr'));
+    const sel = getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    toast('Mantén pulsada la dirección y cópiala');
+  }
+});
+$('#guide-open').addEventListener('click', () => { location.href = 'shortcuts://create-shortcut'; });
+$('#s-quick').addEventListener('click', () => {
+  state.settings.quickAdd = !state.settings.quickAdd;
+  persist(); applyAppearance(); renderSettings();
+  if (state.settings.quickAdd) toast('Listo: se abrirá en nuevo gasto');
+});
+
 $('#equiv').addEventListener('click', () => {
   state.settings.currency = displayCurrency() === 'VES' ? 'USD' : 'VES';
   persist();
@@ -2347,6 +2455,21 @@ function toast(message, { action, onAction } = {}) {
 applyAppearance();
 render(); // todo listo debajo de la portada
 
+/* ¿Se entró por el atajo? La dirección trae ?nuevo=gasto (se limpia enseguida para que
+   recargar no vuelva a abrir el formulario), o está activa la opción "Abrir en nuevo gasto". */
+const quickLaunch = (() => {
+  let fromLink = false;
+  try {
+    const url = new URL(location.href);
+    fromLink = url.searchParams.get('nuevo') === 'gasto' || url.hash === '#nuevo-gasto';
+    if (fromLink) {
+      url.searchParams.delete('nuevo');
+      history.replaceState(null, '', url.pathname + url.search);
+    }
+  } catch (err) { /* dirección no editable: no pasa nada */ }
+  return fromLink || state.settings.quickAdd;
+})();
+
 /* Entrada: cuando la portada empieza a abrirse, las cifras cuentan desde cero,
    el medidor vuelve a llenarse y los bloques del inicio suben escalonados. */
 (() => {
@@ -2362,6 +2485,13 @@ render(); // todo listo debajo de la portada
     render();
     ui.booted = true;
   };
+  if (quickLaunch) {
+    // Sin portada ni entrada animada: lo que importa es apuntar rápido.
+    if (splash) splash.remove();
+    ui.booted = true;
+    requestAnimationFrame(() => requestAnimationFrame(() => openSheet()));
+    return;
+  }
   if (reducedMotion()) {
     if (splash) splash.remove();
     ui.booted = true;
@@ -2383,7 +2513,16 @@ document.addEventListener('touchmove', (e) => { if (e.touches.length > 1) e.prev
   const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 2);
   setTimeout(() => { render(); scheduleMidnight(); }, next - now);
 })();
-document.addEventListener('visibilitychange', () => { if (!document.hidden) { render(); autoRefreshRate(); } });
+let hiddenAt = 0;
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { hiddenAt = Date.now(); return; }
+  render();
+  autoRefreshRate();
+  // Con "Abrir en nuevo gasto", volver a la app (por ejemplo con los dos toques) también abre el formulario.
+  const away = hiddenAt ? Date.now() - hiddenAt : 0;
+  const typing = /^(INPUT|TEXTAREA)$/.test(document.activeElement?.tagName || '');
+  if (state.settings.quickAdd && away > 1000 && !typing && !el.app.classList.contains('sheet-open')) openSheet();
+});
 autoRefreshRate();
 
 /* Icono para "Añadir a pantalla de inicio" en iOS (necesita PNG, lo dibujamos al vuelo). */
