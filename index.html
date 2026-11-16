@@ -547,6 +547,10 @@ html.is-standalone .app { height: 100vh; }
   font: 500 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere;
   -webkit-user-select: all; user-select: all;
 }
+.steps .sub { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.steps .sub li { padding: 8px 12px; border-radius: 12px; background: var(--surface); font-size: 14px; }
+.steps .sub b { font-weight: 600; }
+.guide__status { font-weight: 600; }
 .guide .btn { background: var(--surface); }
 .guide .btn--primary { background: var(--accent); }
 
@@ -1195,7 +1199,8 @@ input[data-pad] { caret-color: transparent; cursor: pointer; -webkit-user-select
           <button type="button" class="btn" id="btn-guide" aria-expanded="false" aria-controls="guide">Ver los pasos</button>
 
           <div class="panel guide" id="guide" hidden>
-            <h3 class="guide__part">Primero, crea el atajo</h3>
+            <p>iOS no le avisa a la app que la abrió el atajo. Por eso el atajo enciende «Reducir movimiento» un par de segundos: es la señal que Bolsillo sí puede ver. Al abrirla desde el icono entra normal.</p>
+            <h3 class="guide__part">Primero, arma el atajo</h3>
             <ol class="steps">
               <li><div>
                 <span>Copia la dirección de tu app.</span>
@@ -1203,24 +1208,34 @@ input[data-pad] { caret-color: transparent; cursor: pointer; -webkit-user-select
                 <button type="button" class="btn" id="guide-copy">Copiar dirección</button>
               </div></li>
               <li><div>
-                <span>Abre la app Atajos y crea un atajo nuevo con el botón +. Busca la acción «Abrir URL», añádela y pega la dirección.</span>
+                <span>Abre la app Atajos. Si ya tienes el atajo «Añadir gasto», mantenlo pulsado y elige Editar; si no, crea uno con el botón +.</span>
                 <button type="button" class="btn btn--primary" id="guide-open" hidden>Abrir Atajos</button>
+              </div></li>
+              <li><div>
+                <span>Deja estas cuatro acciones, en este orden. Se buscan por nombre en el buscador de acciones.</span>
+                <ul class="sub">
+                  <li><b>Reducir movimiento</b>: Activar.</li>
+                  <li><b>Abrir URL</b>: pega la dirección.</li>
+                  <li><b>Esperar</b>: 2 segundos.</li>
+                  <li><b>Reducir movimiento</b>: Desactivar.</li>
+                </ul>
               </div></li>
               <li><div><span>Ponle de nombre «Añadir gasto» y toca Listo.</span></div></li>
             </ol>
 
             <h3 class="guide__part">Después, elígelo en los ajustes del iPhone</h3>
-            <ol class="steps" style="--from:3">
+            <ol class="steps" style="--from:4">
               <li><div><span>Abre Ajustes y entra en Accesibilidad, luego en Tocar.</span></div></li>
               <li><div><span>Baja hasta el final y entra en «Tocar atrás».</span></div></li>
               <li><div><span>Elige «Tocar dos veces» y marca el atajo «Añadir gasto».</span></div></li>
             </ol>
-            <p>Pruébalo con dos toques firmes en la parte de atrás. Si Bolsillo se abre pero no aparece el formulario, activa la opción de abajo.</p>
+            <p>Pruébalo con dos toques firmes en la parte de atrás y vuelve aquí: abajo verás si Bolsillo detectó el atajo.</p>
+            <p class="guide__status" id="guide-status" role="status"></p>
           </div>
 
           <div class="divider" aria-hidden="true"></div>
           <div class="toggle-row">
-            <span id="quick-label"><b>Abrir en nuevo gasto</b><small>Cada vez que entres a Bolsillo aparece el formulario de gasto. Se cierra deslizándolo hacia abajo.</small></span>
+            <span id="quick-label"><b>Abrir siempre en nuevo gasto</b><small>Solo si el atajo no te funciona: el formulario aparece cada vez que entras a Bolsillo, también desde el icono.</small></span>
             <button type="button" class="switch" id="s-quick" role="switch" aria-checked="false" aria-labelledby="quick-label"><i></i></button>
           </div>
         </div>
@@ -2115,7 +2130,7 @@ function renderSettings() {
   $('#s-glow').setAttribute('aria-checked', String(state.settings.glow));
   $('#s-motion').setAttribute('aria-checked', String(state.settings.motion));
   $('#storage-note').textContent = Store.available
-    ? 'Bolsillo 2.0. Tus datos se guardan solo en este navegador; exporta una copia de vez en cuando.'
+    ? 'Bolsillo 2.1. Tus datos se guardan solo en este navegador; exporta una copia de vez en cuando.'
     : 'Este navegador no deja guardar datos. Exporta una copia antes de cerrar para no perder tus movimientos.';
 }
 
@@ -2236,7 +2251,10 @@ function openSheet(tx = null) {
   $('#dock').inert = true;
   el.app.classList.add('sheet-open');
   // En un movimiento nuevo abrimos el teclado de una vez; al editar, no.
-  if (!tx) $('#f-amount').focus({ preventScroll: true });
+  if (!tx) {
+    $('#f-amount').focus({ preventScroll: true });
+    Pad.open($('#f-amount')); // el teclado propio no depende de que el foco llegue
+  }
   else $('#sheet-close').focus({ preventScroll: true });
 }
 function closeSheet() {
@@ -2501,6 +2519,40 @@ $('#s-autorate').addEventListener('click', () => {
    Si la dirección llega con ?nuevo=gasto se abre el formulario; como iOS no siempre la entrega,
    existe además la opción "Abrir en nuevo gasto", que no depende de eso. */
 const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+/* Señal del atajo. iOS abre la app instalada sin entregarle la dirección, así que el atajo
+   enciende «Reducir movimiento» unos segundos antes de abrirla y lo apaga después. La app lo
+   lee con una media query. Si el iPhone lo tiene encendido siempre (más de 8 s seguidos), deja
+   de valer como señal para no abrir el formulario en cada entrada. */
+const mqSignal = matchMedia('(prefers-reduced-motion: reduce)');
+const STEADY_KEY = 'bolsillo:rm-fijo';
+const SEEN_KEY = 'bolsillo:atajo-visto';
+const mem = {
+  get(k) { try { return localStorage.getItem(k); } catch (err) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (err) { /* sin almacenamiento */ } },
+  del(k) { try { localStorage.removeItem(k); } catch (err) { /* sin almacenamiento */ } },
+};
+let steadyTimer = 0;
+function trackSteady() {
+  clearTimeout(steadyTimer);
+  // Se decide cuando el valor lleva un rato estable, no con el primer parpadeo.
+  steadyTimer = mqSignal.matches
+    ? setTimeout(() => { if (mqSignal.matches && !document.hidden) { mem.set(STEADY_KEY, '1'); paintGuide(); } }, 8000)
+    : setTimeout(() => { if (!mqSignal.matches && mem.get(STEADY_KEY)) { mem.del(STEADY_KEY); paintGuide(); } }, 3000);
+}
+const shortcutSignal = () => mqSignal.matches && mem.get(STEADY_KEY) !== '1';
+/** Entrada por el atajo con la app ya abierta o volviendo del fondo. */
+function quickOpen() {
+  mem.set(SEEN_KEY, new Date().toISOString());
+  const splash = $('#splash');
+  if (splash) splash.remove();
+  ui.booted = true;
+  const busy = el.app.classList.contains('sheet-open') || el.app.classList.contains('pane-open');
+  if (!busy) openSheet();
+}
+mqSignal.addEventListener('change', () => {
+  trackSteady();
+  if (shortcutSignal() && !document.hidden) quickOpen(); // también con la app ya en pantalla
+});
 function shortcutAddress() {
   if (insideClaude || framed || !/^https?:$/.test(location.protocol)) return '';
   return 'webapp://' + location.host + location.pathname.replace(/index\.html$/, '') + '?nuevo=gasto';
@@ -2510,6 +2562,10 @@ function paintGuide() {
   $('#guide-addr').textContent = addr || 'Abre estos pasos desde la app instalada en tu iPhone y aquí aparecerá tu dirección.';
   $('#guide-copy').disabled = !addr;
   $('#guide-open').hidden = !(addr && isIOS);
+  const seen = mem.get(SEEN_KEY);
+  $('#guide-status').textContent = mem.get(STEADY_KEY) === '1'
+    ? 'Tu iPhone tiene «Reducir movimiento» activado siempre, así que no sirve como señal. Usa la opción de abajo.'
+    : seen ? `Atajo detectado por última vez: ${formatWhen(seen)}.` : 'Todavía no he detectado el atajo.';
 }
 $('#btn-guide').addEventListener('click', () => {
   const panel = $('#guide');
@@ -3350,7 +3406,7 @@ function invActionForm(action) {
       <button type="button" class="btn btn--primary" data-act="inv-save">Guardar</button>
     </div>
   </div>`);
-  requestAnimationFrame(() => $('#iv-amount')?.focus({ preventScroll: true }));
+  requestAnimationFrame(() => { const f = $('#iv-amount'); if (f) { f.focus({ preventScroll: true }); Pad.open(f); } });
 }
 function invError(message) {
   const p = $('#iv-error');
@@ -3770,8 +3826,11 @@ const quickLaunch = (() => {
       history.replaceState(null, '', url.pathname + url.search);
     }
   } catch (err) { /* dirección no editable: no pasa nada */ }
-  return fromLink || state.settings.quickAdd;
+  const signal = shortcutSignal();
+  if (signal || fromLink) mem.set(SEEN_KEY, new Date().toISOString());
+  return fromLink || signal || state.settings.quickAdd;
 })();
+trackSteady();
 
 /* Entrada: cuando la portada empieza a abrirse, las cifras cuentan desde cero,
    el medidor vuelve a llenarse y los bloques del inicio suben escalonados. */
@@ -3818,9 +3877,11 @@ document.addEventListener('touchmove', (e) => { if (e.touches.length > 1) e.prev
 })();
 let hiddenAt = 0;
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden) { hiddenAt = Date.now(); return; }
+  if (document.hidden) { hiddenAt = Date.now(); clearTimeout(steadyTimer); return; }
   render();
   autoRefreshRate();
+  trackSteady();
+  if (shortcutSignal()) { quickOpen(); return; }
   // Con "Abrir en nuevo gasto", volver a la app (por ejemplo con los dos toques) también abre el formulario.
   const away = hiddenAt ? Date.now() - hiddenAt : 0;
   const typing = /^(INPUT|TEXTAREA)$/.test(document.activeElement?.tagName || '');
