@@ -1,6 +1,6 @@
 /* Bolsillo: service worker. Guarda la app para usarla sin conexión.
    Cambia el número de versión cada vez que subas un index.html nuevo. */
-const CACHE = 'bolsillo-2.0.0';
+const CACHE = 'bolsillo-2.1.0';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 
@@ -24,16 +24,24 @@ self.addEventListener('fetch', (event) => {
   // La tasa del día y cualquier otro servicio externo van siempre a la red, sin caché.
   if (!sameOrigin && !FONT_HOSTS.includes(url.hostname)) return;
 
-  // La página: primero la red (para recibir versiones nuevas); sin conexión, la copia guardada.
+  // La página: con buena conexión llega la versión nueva; si la red tarda más de un segundo
+  // (o no hay), se abre la copia guardada y la nueva queda lista para la próxima vez.
   if (request.mode === 'navigate') {
+    const fromNet = fetch(request).then((response) => {
+      if (response.ok) {
+        const copy = response.clone();
+        caches.open(CACHE).then((cache) => cache.put('index.html', copy));
+      }
+      return response;
+    });
+    event.waitUntil(fromNet.catch(() => {}));
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE).then((cache) => cache.put('index.html', copy));
-          return response;
-        })
-        .catch(() => caches.match('index.html'))
+      caches.match('index.html').then((saved) => {
+        if (!saved) return fromNet;
+        const fresh = fromNet.then((response) => (response.ok ? response : saved)).catch(() => saved);
+        const slow = new Promise((resolve) => setTimeout(() => resolve(saved), 1000));
+        return Promise.race([fresh, slow]);
+      })
     );
     return;
   }
