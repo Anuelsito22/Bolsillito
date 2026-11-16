@@ -825,7 +825,7 @@ input[data-pad] { caret-color: transparent; cursor: pointer; -webkit-user-select
 }
 .app.pane-open .scrim { opacity: 1; visibility: visible; transition: opacity .28s ease, visibility 0s; }
 .app.pane-open .pane { transform: none; visibility: visible; transition: transform .46s var(--spring), visibility 0s; }
-.app.pad-open .pane { padding-bottom: calc(400px + env(safe-area-inset-bottom)); }
+.app.pad-open .pane, .app.pad-closing .pane { padding-bottom: calc(400px + env(safe-area-inset-bottom)); }
 .pane .stack { gap: 16px; }
 .pane .money-input, .pane .text-input { background: var(--surface-2); }
 
@@ -950,6 +950,140 @@ input[data-pad] { caret-color: transparent; cursor: pointer; -webkit-user-select
 .hist b { font-variant-numeric: tabular-nums; font-weight: 600; }
 .hist button { width: 32px; height: 32px; border-radius: 50%; color: var(--muted); display: grid; place-items: center; }
 .hist button .ico { width: 16px; height: 16px; }
+
+/* ==========================================================================
+   VERSIÓN 2.2: nota del día, metas, tasas, herramientas
+   ========================================================================== */
+.view.is-boot > :nth-child(6) { animation-delay: .38s; }
+
+/* ---- Notas del inicio: cuánto gastar hoy y avisos que aparecen solo cuando hacen falta ---- */
+.notes { display: flex; flex-direction: column; gap: 8px; }
+.note {
+  position: relative; display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 12px; align-items: center;
+  width: 100%; padding: 12px 12px 12px 12px; border-radius: 20px; text-align: left;
+  background: var(--accent-soft); --tone: var(--accent-text);
+  transition: transform .15s;
+}
+button.note:active { transform: scale(.985); }
+.note__ico { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; background: var(--surface); color: var(--tone); }
+.note__ico .ico { width: 19px; height: 19px; stroke-width: 2; }
+.note__main { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.note__title { font-weight: 600; font-size: 15px; line-height: 1.3; }
+.note__title b { font: 700 17px/1.2 var(--font-display); letter-spacing: -.02em; font-variant-numeric: tabular-nums; color: var(--tone); }
+.note__sub { color: var(--muted); font-size: 13px; line-height: 1.35; }
+.note__end { color: var(--muted); display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; }
+.note__end .ico { width: 16px; height: 16px; stroke-width: 2.2; }
+.note--warn { background: color-mix(in srgb, var(--warn) 15%, transparent); --tone: var(--warn); }
+.note--over { background: var(--neg-soft); --tone: var(--neg); }
+.note--alert { animation: riseIn .5s var(--ease) both; }
+.note--alert .note__title { font-size: 14px; }
+
+/* ---- Metas ---- */
+.goal { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 6px 12px; align-items: center; width: 100%; padding: 10px; border-radius: 18px; text-align: left; transition: background-color .15s, transform .15s; }
+.goal:active { background: var(--surface-2); transform: scale(.98); }
+.goal .row__ico { grid-row: span 3; align-self: start; color: var(--accent-text); }
+.goal__top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; min-width: 0; }
+.goal__top b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.goal__top span { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.goal__top strong { color: var(--ink); font-weight: 600; }
+.state.is-ok { color: var(--pos); font-weight: 600; }
+.state.is-warn { color: var(--warn); font-weight: 600; }
+.meter.is-done i { background: var(--pos); }
+.hero .meter { margin: 6px 0 2px; }
+.chips--mini .chip { padding: 7px 12px; font-size: 13px; }
+.pane .btn-row--3 { grid-template-columns: 1.3fr 1fr 1fr; }
+
+/* ---- Formulario: categoría sugerida, frecuentes y tasa del movimiento ---- */
+.note-wrap { position: relative; }
+.note-wrap .text-input { width: 100%; }
+.note-wrap.has-sugg .text-input { padding-right: 132px; }
+.sugg {
+  position: absolute; inset: 0 8px 0 auto; margin: auto 0; height: 28px;
+  display: inline-flex; align-items: center; gap: 5px; max-width: 120px;
+  padding: 5px 10px 5px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-text);
+  font-size: 12.5px; font-weight: 600; white-space: nowrap; pointer-events: none;
+  animation: pop .32s var(--spring);
+}
+.sugg .ico { width: 15px; height: 15px; }
+.hintrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 0; }
+.hintrow .seg button { padding: 4px 10px; font-size: 12px; }
+.label small { font-weight: 500; color: var(--accent-text); margin-left: 6px; }
+
+/* ---- Herramientas (lista dentro de Ajustes) ---- */
+.tools { padding: 8px; }
+.tools .row { grid-template-columns: 42px minmax(0, 1fr) 18px; }
+.tools .row > .ico { width: 18px; height: 18px; color: var(--muted); stroke-width: 2.2; }
+.tools .row__ico { color: var(--accent-text); }
+
+/* ---- Dólar y bolívar ---- */
+.ratecard { padding: 14px 16px; display: flex; flex-direction: column; gap: 2px; min-width: 0; text-align: left; }
+.ratecard__label { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; font-weight: 500; }
+.ratecard__label em { font-style: normal; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-text); }
+.ratecard__value { font: 700 22px/1.2 var(--font-display); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.ratecard__value small { font-size: 14px; color: var(--muted); font-weight: 600; margin-right: 3px; }
+.ratecard__sub { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ratecard__sub.is-up { color: var(--neg); font-weight: 600; }
+.melt { display: flex; flex-direction: column; gap: 10px; }
+.melt__row { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 10px; align-items: center; }
+.melt__row > span { color: var(--muted); font-size: 13px; line-height: 1.25; }
+.melt__bar { position: relative; height: 34px; border-radius: 10px; background: var(--surface-2); overflow: hidden; }
+.melt__bar i { position: absolute; inset: 0 auto 0 0; border-radius: 10px; background: var(--muted); opacity: .45; transition: width .7s var(--ease); }
+.melt__row.is-now .melt__bar i { background: var(--accent); opacity: 1; }
+.melt__row.is-next .melt__bar i {
+  opacity: 1; background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--neg) 55%, transparent) 0 6px, color-mix(in srgb, var(--neg) 22%, transparent) 6px 12px);
+}
+.melt__bar b { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font: 650 15px/1 var(--font-display); letter-spacing: -.02em; font-variant-numeric: tabular-nums; color: var(--ink); text-shadow: 0 0 6px var(--surface-2); }
+.melt__row.is-now .melt__bar b { color: var(--accent-ink); text-shadow: none; }
+.melt__loss { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.box p.big { color: var(--ink); font-size: 15px; }
+.box p.big b { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
+.box p.big b.is-neg { color: var(--neg); }
+
+/* ---- Conversor con calculadora ---- */
+.conv { padding: 8px; display: flex; flex-direction: column; gap: 4px; }
+.conv__row { display: grid; grid-template-columns: minmax(0, auto) minmax(0, 1fr); gap: 12px; align-items: center; padding: 12px 14px; border-radius: 18px; border: 1.5px solid transparent; text-align: left; width: 100%; min-height: 66px; }
+.conv__row > span { color: var(--muted); font-size: 13px; font-weight: 600; }
+.conv__val { display: flex; flex-direction: column; align-items: flex-end; min-width: 0; }
+.conv__val small { color: var(--muted); font-size: 12.5px; font-variant-numeric: tabular-nums; min-height: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.conv__val b { font: 700 24px/1.2 var(--font-display); letter-spacing: -.03em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; text-align: right; }
+.conv__row[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); }
+.conv__row[aria-pressed="true"] > span { color: var(--accent-text); }
+.calc { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; touch-action: manipulation; }
+.calc .key { background: var(--surface); border: 1px solid var(--line); }
+.calc .key--op { color: var(--accent-text); background: var(--accent-soft); border-color: transparent; font-size: 24px; }
+.calc .key--eq { background: var(--accent); color: var(--accent-ink); border-color: transparent; grid-column: span 2; }
+.calc .key--fn { background: var(--surface-2); border-color: transparent; }
+
+/* ---- Dividir la cuenta ---- */
+.stepper { display: grid; grid-template-columns: 48px 1fr 48px; align-items: center; gap: 8px; }
+.stepper button { height: 48px; border-radius: 16px; background: var(--surface-2); display: grid; place-items: center; }
+.stepper button:active { transform: scale(.94); }
+.stepper button[disabled] { opacity: .4; }
+.stepper b { text-align: center; font: 700 24px/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.stepper b small { display: block; font: 500 12.5px/1.4 var(--font-body); color: var(--muted); }
+.person { display: grid; grid-template-columns: minmax(0, 1fr) 124px; gap: 10px; align-items: center; }
+.person .text-input { padding: 10px 12px; min-height: 0; border-radius: 12px; }
+.shares { display: flex; flex-direction: column; }
+.shares div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+.shares div:first-child { border-top: 0; padding-top: 0; }
+.shares div:last-child { padding-bottom: 0; }
+.shares span { font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.shares b { font: 650 17px/1.2 var(--font-display); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.shares b small { display: block; font: 500 12.5px/1.3 var(--font-body); color: var(--muted); }
+
+/* ---- Resúmenes ---- */
+.recap__title { font: 700 22px/1.15 var(--font-display); letter-spacing: -.03em; }
+.recap__badge { align-self: flex-start; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-text); }
+.checks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.checks li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; align-items: start; font-size: 14.5px; }
+.checks .ico { width: 20px; height: 20px; margin-top: 1px; }
+.checks .is-ok .ico { color: var(--pos); }
+.checks .is-bad .ico { color: var(--neg); }
+.checks .is-mid .ico { color: var(--warn); }
+.note__main { text-align: left; }
+button.note__main { padding: 0; }
+.hintrow .seg { margin-left: auto; flex: none; }
+.goal .meter { display: block; }
 </style>
 <script>
 /* Antes de pintar: detecta si es la app instalada y aplica el aspecto guardado (tema, color, animaciones),
@@ -1009,9 +1143,11 @@ input[data-pad] { caret-color: transparent; cursor: pointer; -webkit-user-select
         <button type="button" class="equiv" id="equiv" hidden></button>
         <div class="pills">
           <span class="pill" id="month-pill"></span>
-          <button type="button" class="pill pill--rate" id="rate-pill" data-go="config" aria-label="Ver la tasa del día en Ajustes" hidden></button>
+          <button type="button" class="pill pill--rate" id="rate-pill" data-go="rates" aria-label="Ver el dólar y cuánto pierde el bolívar" hidden></button>
         </div>
       </div>
+
+      <div class="notes" id="notes"></div>
 
       <div class="pair">
         <article class="card stat stat--in" id="stat-in">
@@ -1179,15 +1315,57 @@ input[data-pad] { caret-color: transparent; cursor: pointer; -webkit-user-select
             <span>Bs</span>
             <input id="s-rate-eur" type="text" inputmode="none" readonly data-pad data-decimals="4" autocomplete="off" placeholder="0,00">
           </div>
+          <label class="field-label" for="s-rate-par">Dólar paralelo, en bolívares</label>
+          <div class="money-input">
+            <span>Bs</span>
+            <input id="s-rate-par" type="text" inputmode="none" readonly data-pad data-decimals="4" autocomplete="off" placeholder="0,00">
+          </div>
+          <div id="ratemode-box" style="display:flex;flex-direction:column;gap:12px" hidden>
+            <span class="field-label" id="ratemode-label">Convertir con</span>
+            <div class="seg seg--lg" id="s-ratemode" style="--n:2" role="group" aria-labelledby="ratemode-label">
+              <span class="seg__thumb" aria-hidden="true"></span>
+              <button type="button" data-ratemode="bcv" aria-pressed="true">Oficial BCV</button>
+              <button type="button" data-ratemode="par" aria-pressed="false">Paralelo</button>
+            </div>
+            <p>Es la tasa con la que Bolsillo pasa tus montos de bolívares a dólares. Al anotar un gasto en bolívares puedes elegir la otra.</p>
+          </div>
           <button type="button" class="btn" id="btn-rate">
             <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 0 1-14.3 4.9M4 12a8 8 0 0 1 14.3-4.9M18.5 3.5v4h-4M5.5 20.500v-4h4"/></svg>
-            Usar la tasa oficial del BCV
+            Actualizar las tasas
           </button>
           <p id="rate-status"></p>
           <p class="error" id="rate-error" role="alert" hidden></p>
           <div class="toggle-row">
-            <span id="autorate-label"><b>Actualizar sola</b><small>Consulta la tasa oficial al abrir la app</small></span>
+            <span id="autorate-label"><b>Actualizar sola</b><small>Consulta la oficial y el paralelo al abrir la app</small></span>
             <button type="button" class="switch" id="s-autorate" role="switch" aria-checked="true" aria-labelledby="autorate-label"><i></i></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="group">
+        <h2 class="group__title">Herramientas</h2>
+        <div class="card tools">
+          <div class="rows">
+            <button type="button" class="row" data-go="conv">
+              <span class="row__ico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3.500" width="14" height="17" rx="3"/><path d="M8.500 7.500h7M8.500 12h.010M12 12h.010M15.500 12h.010M8.500 16h.010M12 16h.010M15.500 16h.010"/></svg></span>
+              <span class="row__main"><span class="row__title">Conversor</span><span class="row__sub">Con calculadora y las dos tasas</span></span>
+              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.500 6l6 6-6 6"/></svg>
+            </button>
+            <button type="button" class="row" data-go="split">
+              <span class="row__ico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8.500" r="3"/><path d="M3.500 19c.500-3 2.700-4.500 5.500-4.500s5 1.500 5.500 4.500M16 5.800a3 3 0 0 1 0 5.400M17.500 14.800c1.700.600 2.700 2 3 4.200"/></svg></span>
+              <span class="row__main"><span class="row__title">Dividir la cuenta</span><span class="row__sub">Partes iguales o por consumo</span></span>
+              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.500 6l6 6-6 6"/></svg>
+            </button>
+            <button type="button" class="row" data-go="recap">
+              <span class="row__ico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.500h7l4 4V19a1.500 1.500 0 0 1-1.500 1.500h-9.500A1.500 1.500 0 0 1 5.500 19V5A1.500 1.500 0 0 1 7 3.500z"/><path d="M13.500 3.500V8H18M9 12.500h6M9 16h4"/></svg></span>
+              <span class="row__main"><span class="row__title">Resúmenes</span><span class="row__sub">Cómo te fue en la semana y en el mes</span></span>
+              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.500 6l6 6-6 6"/></svg>
+            </button>
+            <button type="button" class="row" data-go="rates">
+              <span class="row__ico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.500 9.500 13l3.500-3.500 7 7"/><path d="M15 16.500h5v-5"/></svg></span>
+              <span class="row__main"><span class="row__title">Dólar y bolívar</span><span class="row__sub">Cuánto pierde tu dinero en bolívares</span></span>
+              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.500 6l6 6-6 6"/></svg>
+            </button>
           </div>
         </div>
       </div>
@@ -1281,6 +1459,31 @@ input[data-pad] { caret-color: transparent; cursor: pointer; -webkit-user-select
 
       <p class="foot" id="storage-note"></p>
     </section>
+
+    <!-- ====================== HERRAMIENTAS Y TASAS ====================== -->
+    <section class="view" id="view-rates" aria-label="Dólar y bolívar" hidden>
+      <button type="button" class="back" data-go="back"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.500 12l6 6"/></svg>Volver</button>
+      <h1 class="view__title">Dólar y bolívar</h1>
+      <div class="stack" id="rates-body"></div>
+    </section>
+
+    <section class="view" id="view-conv" aria-label="Conversor" hidden>
+      <button type="button" class="back" data-go="back"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.500 12l6 6"/></svg>Volver</button>
+      <h1 class="view__title">Conversor</h1>
+      <div class="stack" id="conv-body"></div>
+    </section>
+
+    <section class="view" id="view-split" aria-label="Dividir la cuenta" hidden>
+      <button type="button" class="back" data-go="back"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.500 12l6 6"/></svg>Volver</button>
+      <h1 class="view__title">Dividir la cuenta</h1>
+      <div class="stack" id="split-body"></div>
+    </section>
+
+    <section class="view" id="view-recap" aria-label="Resúmenes" hidden>
+      <button type="button" class="back" data-go="back"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.500 12l6 6"/></svg>Volver</button>
+      <h1 class="view__title">Resúmenes</h1>
+      <div class="stack" id="recap-body"></div>
+    </section>
   </main>
 
   <!-- ========================== BARRA FLOTANTE ========================== -->
@@ -1336,18 +1539,29 @@ input[data-pad] { caret-color: transparent; cursor: pointer; -webkit-user-select
           <span class="amount__sym" id="f-sym">$</span>
           <input id="f-amount" type="text" inputmode="none" readonly data-pad autocomplete="off" placeholder="0,00" enterkeyhint="done">
         </div>
-        <p class="hint" id="amount-hint" hidden></p>
+        <div class="hintrow">
+          <p class="hint" id="amount-hint" hidden></p>
+          <div class="seg seg--sm" id="f-rate" style="--n:2" role="radiogroup" aria-label="Tasa de este movimiento" hidden>
+            <span class="seg__thumb" aria-hidden="true"></span>
+            <button type="button" role="radio" data-rk="bcv" aria-checked="true">BCV</button>
+            <button type="button" role="radio" data-rk="par" aria-checked="false">Paralelo</button>
+          </div>
+        </div>
         <p class="error" id="amount-error" role="alert" hidden>Escribe un monto mayor que cero.</p>
       </div>
 
       <div class="field">
-        <span class="label" id="cat-label">Categoría</span>
+        <span class="label" id="cat-label">Categoría<small id="cat-auto" hidden>sugerida por tu nota</small></span>
         <div class="chips" id="f-cats" role="radiogroup" aria-labelledby="cat-label"></div>
       </div>
 
       <div class="field">
         <label class="label" for="f-note">Nota (opcional)</label>
-        <input class="text-input" id="f-note" type="text" maxlength="80" autocomplete="off" placeholder="Ej.: almuerzo con Ana" enterkeyhint="done">
+        <div class="note-wrap" id="note-wrap">
+          <input class="text-input" id="f-note" type="text" maxlength="80" autocomplete="off" placeholder="Ej.: almuerzo con Ana" enterkeyhint="done">
+          <span class="sugg" id="f-sugg" hidden></span>
+        </div>
+        <div class="chips chips--mini" id="f-freq" role="group" aria-label="Notas que repites" hidden></div>
       </div>
 
       <div class="form__actions">
@@ -1403,7 +1617,7 @@ const CATEGORIES = {
 const CAT_LABEL = {
   comida: 'Comida', transporte: 'Transporte', ocio: 'Ocio', servicios: 'Servicios', otros: 'Otros',
   sueldo: 'Sueldo', ventas: 'Ventas', regalo: 'Regalo',
-  hogar: 'Hogar', salud: 'Salud', compras: 'Compras', educacion: 'Educación', ahorro: 'Ahorro', inversion: 'Inversión',
+  hogar: 'Hogar', salud: 'Salud', compras: 'Compras', educacion: 'Educación', ahorro: 'Ahorro', inversion: 'Inversión', meta: 'Meta',
 };
 const CAT_ICON = {
   comida: '<path d="M7 3v18M4.5 3v4.5a2.5 2.5 0 0 0 5 0V3M17 21v-8M17 13h-2.5V9c0-2.7.8-4.8 2.5-6v10z"/>',
@@ -1422,6 +1636,7 @@ Object.assign(CAT_ICON, {
   educacion: '<path d="M12 6.500C10.200 5 7.500 4.500 4 4.500v13c3.500 0 6.200.500 8 2 1.800-1.500 4.500-2 8-2v-13c-3.500 0-6.200.500-8 2z"/><path d="M12 6.500v13"/>',
   ahorro: '<rect x="3.500" y="5.500" width="17" height="12.500" rx="3"/><circle cx="12" cy="11.750" r="2.600"/><path d="M7 18v2M17 18v2"/>',
   inversion: '<path d="M4 16.500 9.500 11l3.500 3.500 7-7"/><path d="M15 7.500h5v5"/>',
+  meta: '<path d="M6 21V4M6 4.500h11.500l-2.500 4 2.500 4H6"/>',
 });
 /** Categorías que entran en el plan de gastos y su peso habitual (proporción de partida, no porcentaje fijo). */
 const PLAN_CATS = ['hogar', 'comida', 'servicios', 'transporte', 'salud', 'educacion', 'ocio', 'compras', 'otros'];
@@ -1510,18 +1725,23 @@ const numFmt4 = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maxim
  * tasa del día, que vive en state.settings.rates como "bolívares por 1 dólar"
  * (usd) y "bolívares por 1 euro" (eur).
  */
+/** Bolívares por dólar que usa la app: la oficial o la del paralelo, según Ajustes. */
+function vesRate(kind = state.settings.rateMode) {
+  const r = state.settings.rates;
+  return kind === 'par' && r.par > 0 ? r.par : (r.usd || r.par || 0);
+}
 /** ¿Hay tasa suficiente para convertir a esta moneda? */
 function rateOk(cur) {
   const r = state.settings.rates;
   if (cur === 'USD') return true;
-  if (cur === 'VES') return r.usd > 0;
+  if (cur === 'VES') return vesRate() > 0;
   if (cur === 'EUR') return r.usd > 0 && r.eur > 0;
   return false;
 }
 /** Cuántas unidades de la moneda equivalen hoy a 1 dólar. */
 function unitsPerUsd(cur) {
   const r = state.settings.rates;
-  if (cur === 'VES') return r.usd;
+  if (cur === 'VES') return vesRate();
   if (cur === 'EUR') return r.usd / r.eur;
   return 1;
 }
@@ -1628,13 +1848,15 @@ function defaultState() {
     settings: {
       monthlyBudget: 60000, currency: 'USD', gaugeMode: 'day',
       theme: 'system', dark: 'navy', accent: 'violeta', glow: true, motion: true,
-      rates: { usd: 0, eur: 0, updatedAt: null, effectiveDate: null, source: null },
+      rates: { usd: 0, eur: 0, updatedAt: null, effectiveDate: null, source: null, par: 0, parUpdatedAt: null },
+      rateMode: 'bcv',
       autoRate: true,
       quickAdd: false,
     },
     transactions: [],
     plan: null,
     investments: [],
+    goals: [],
   };
 }
 
@@ -1678,7 +1900,7 @@ function sanitizeTransaction(raw) {
     id: typeof raw.id === 'string' && raw.id ? raw.id : uid(),
     type,
     amount,
-    category: CATEGORIES[type].includes(raw.category) ? raw.category : 'otros',
+    category: CATEGORIES[type].includes(raw.category) || raw.category === 'meta' ? raw.category : 'otros',
     note: typeof raw.note === 'string' ? raw.note.trim().slice(0, 80) : '',
     date: date.toISOString(),
     source: typeof raw.source === 'string' ? raw.source.slice(0, 20) : 'manual',
@@ -1691,6 +1913,7 @@ function sanitizeTransaction(raw) {
       tx.orig = { currency: raw.orig.currency, amount: origAmount, rate: origRate };
     }
   }
+  if (tx.category === 'meta' && typeof raw.goal === 'string') tx.goal = raw.goal.slice(0, 40);
   if (raw.demo === true) tx.demo = true;
   return tx;
 }
@@ -1750,11 +1973,15 @@ function sanitizeState(raw) {
     updatedAt: r.updatedAt && !Number.isNaN(new Date(r.updatedAt).getTime()) ? new Date(r.updatedAt).toISOString() : null,
     effectiveDate: typeof r.effectiveDate === 'string' && /^\d{4}-\d{2}-\d{2}/.test(r.effectiveDate) ? r.effectiveDate.slice(0, 10) : null,
     source: r.source === 'bcv' || r.source === 'manual' ? r.source : null,
+    par: positive(r.par),
+    parUpdatedAt: r.parUpdatedAt && !Number.isNaN(new Date(r.parUpdatedAt).getTime()) ? new Date(r.parUpdatedAt).toISOString() : null,
   };
   base.settings.autoRate = s.autoRate !== false;
+  base.settings.rateMode = s.rateMode === 'par' && base.settings.rates.par > 0 ? 'par' : 'bcv';
   base.settings.quickAdd = s.quickAdd === true;
   base.plan = sanitizePlan(raw.plan);
   base.investments = Array.isArray(raw.investments) ? raw.investments.map(sanitizeInvestment).filter(Boolean) : [];
+  base.goals = Array.isArray(raw.goals) ? raw.goals.map(sanitizeGoal).filter(Boolean) : [];
   base.transactions = raw.transactions.map(sanitizeTransaction).filter(Boolean);
   if (raw.transactions.length && !base.transactions.length) {
     throw new Error('La copia no tiene movimientos válidos.');
@@ -1786,12 +2013,14 @@ function summary(now = new Date()) {
   const out = {
     balance: 0,
     today: { income: 0, expense: 0, saved: 0, incomeCount: 0, expenseCount: 0, savedCount: 0 },
-    month: { income: 0, expense: 0, saved: 0 },
+    month: { income: 0, expense: 0, saved: 0, goal: 0 },
   };
   for (const tx of state.transactions) {
     const t = new Date(tx.date).getTime();
     out.balance += signedAmount(tx);
     // Lo apartado para ahorro sale del saldo, pero no cuenta como gasto ni contra el presupuesto.
+    // Lo que va a una meta tampoco es gasto: se lleva aparte del ahorro normal.
+    if (tx.category === 'meta') { if (t >= monthStart) out.month.goal += tx.type === 'expense' ? tx.amount : -tx.amount; continue; }
     const kind = tx.type === 'expense' && tx.category === 'ahorro' ? 'saved' : tx.type;
     if (t >= monthStart) out.month[kind] += tx.amount;
     if (t >= dayStart) {
@@ -2029,7 +2258,10 @@ function renderHome({ newId } = {}) {
   }
   const ratePill = $('#rate-pill');
   ratePill.hidden = !hasRate;
-  if (hasRate) ratePill.innerHTML = `<span>Tasa</span><b class="num">Bs ${rateToInput(state.settings.rates.usd)}</b>`;
+  if (hasRate) {
+    const par = state.settings.rateMode === 'par' && state.settings.rates.par > 0;
+    ratePill.innerHTML = `<span>${par ? 'Paralelo' : state.settings.rates.source === 'bcv' ? 'BCV' : 'Tasa'}</span><b class="num">Bs ${rateToInput(vesRate())}</b>`;
+  }
 
   const plural = (n) => (n === 0 ? 'Sin movimientos' : n === 1 ? '1 movimiento' : `${n} movimientos`);
   if (ui.booted && shown.todayIn !== s.today.income) replay($('#stat-in'), 'is-pulse');
@@ -2045,16 +2277,20 @@ function renderHome({ newId } = {}) {
   $('#today-out-sub').textContent = plural(s.today.expenseCount);
   $('#fab').classList.toggle('is-inviting', state.transactions.length === 0);
 
-  /* Presupuesto */
+  /* Nota del día y avisos */
+  const dp = dayPlan(now);
+  paintNotes(now, dp);
+
+  /* Presupuesto. En "Hoy" el límite es el mismo de la nota: se adapta a lo ya gastado, las metas y el ahorro. */
   const mode = state.settings.gaugeMode;
   const monthly = state.settings.monthlyBudget;
   setSeg($('#gauge-mode'), mode === 'day' ? 0 : 1);
   $('#budget-body').hidden = monthly <= 0;
   $('#budget-empty').hidden = monthly > 0;
   if (monthly > 0) {
-    const limit = mode === 'day' ? Math.round(monthly / daysInMonth(now)) : monthly;
+    const limit = mode === 'day' ? dp.perDay : monthly;
     const spent = mode === 'day' ? s.today.expense : s.month.expense;
-    const pct = limit > 0 ? Math.round((spent / limit) * 100) : 0;
+    const pct = limit > 0 ? Math.round((spent / limit) * 100) : spent > 0 ? 100 : 0;
     const left = limit - spent;
     const period = mode === 'day' ? 'hoy' : fmtMonth.format(now);
     const level = pct >= 100 ? 'over' : pct >= 80 ? 'warn' : 'ok';
@@ -2116,11 +2352,13 @@ function renderSettings() {
     : 'Escribe cuánto quieres gastar como máximo cada mes.';
   setSeg($('#s-currency'), Object.keys(CURRENCIES).indexOf(displayCurrency()));
   const rates = state.settings.rates;
-  for (const [id, value] of [['#s-rate-usd', rates.usd], ['#s-rate-eur', rates.eur]]) {
+  for (const [id, value] of [['#s-rate-usd', rates.usd], ['#s-rate-eur', rates.eur], ['#s-rate-par', rates.par]]) {
     const field = $(id);
     if (!isEditing(field)) field.value = value ? rateToInput(value) : '';
   }
   $('#rate-status').textContent = rateStatusText();
+  $('#ratemode-box').hidden = !(rates.usd > 0 && rates.par > 0);
+  setSeg($('#s-ratemode'), state.settings.rateMode === 'par' && rates.par > 0 ? 1 : 0);
   $('#s-autorate').setAttribute('aria-checked', String(state.settings.autoRate));
   $('#s-quick').setAttribute('aria-checked', String(state.settings.quickAdd));
   setSeg($('#s-theme'), THEMES.indexOf(state.settings.theme));
@@ -2130,11 +2368,11 @@ function renderSettings() {
   $('#s-glow').setAttribute('aria-checked', String(state.settings.glow));
   $('#s-motion').setAttribute('aria-checked', String(state.settings.motion));
   $('#storage-note').textContent = Store.available
-    ? 'Bolsillo 2.1. Tus datos se guardan solo en este navegador; exporta una copia de vez en cuando.'
+    ? 'Bolsillo 2.2. Tus datos se guardan solo en este navegador; exporta una copia de vez en cuando.'
     : 'Este navegador no deja guardar datos. Exporta una copia antes de cerrar para no perder tus movimientos.';
 }
 
-function rateStatusText() {
+function rateStatusBase() {
   const r = state.settings.rates;
   if (!r.usd) return 'Aún no hay tasa. Escríbela o toca Actualizar.';
   const when = r.updatedAt ? ` Actualizada ${formatWhen(r.updatedAt)}.` : '';
@@ -2156,13 +2394,20 @@ function render(opts = {}) {
    9. NAVEGACIÓN
    ========================================================================== */
 const TAB_VIEWS = ['home', 'stats', 'plan', 'invest'];
+/** Vistas de herramientas: se entra desde Ajustes (o desde la tasa del inicio) y "Volver" regresa ahí. */
+const TOOL_VIEWS = ['rates', 'conv', 'split', 'recap'];
+ui.backTo = {};
+ui.backScroll = 0;
 function go(view) {
-  const order = [...TAB_VIEWS, 'list', 'config'];
+  const goingBack = view === 'back';
+  if (goingBack) view = ui.backTo[ui.view] || 'config';
+  const order = [...TAB_VIEWS, 'list', 'config', ...TOOL_VIEWS];
   if (!order.includes(view) || view === ui.view) {
     el.scroll.scrollTo({ top: 0, behavior: reducedMotion() ? 'auto' : 'smooth' });
     return;
   }
   Pad.close();
+  if (TOOL_VIEWS.includes(view) && !TOOL_VIEWS.includes(ui.view)) { ui.backTo[view] = ui.view; ui.backScroll = el.scroll.scrollTop; }
   const dir = order.indexOf(view) > order.indexOf(ui.view) ? 1 : -1;
   ui.view = view;
   for (const name of order) {
@@ -2179,8 +2424,8 @@ function go(view) {
     if (t.dataset.go === view) t.setAttribute('aria-current', 'page');
     else t.removeAttribute('aria-current');
   });
-  el.scroll.scrollTop = 0;
   renderView();
+  el.scroll.scrollTop = goingBack ? ui.backScroll : 0;
 }
 document.addEventListener('click', (e) => {
   const trigger = e.target.closest('[data-go]');
@@ -2190,7 +2435,7 @@ document.addEventListener('click', (e) => {
 /* ==========================================================================
    10. FORMULARIO (hoja modal)
    ========================================================================== */
-const form = { type: 'expense', category: 'comida', currency: 'USD', editingId: null, opener: null };
+const form = { type: 'expense', category: 'comida', currency: 'USD', editingId: null, opener: null, catTouched: false, rateKind: 'bcv' };
 
 function paintForm() {
   const seg = $('#f-type');
@@ -2213,16 +2458,26 @@ function paintForm() {
     <button type="button" role="radio" data-cur="${c}" aria-checked="${c === form.currency}">${CURRENCIES[c].symbol}</button>`).join('');
   $('#f-sym').textContent = CURRENCIES[form.currency].symbol;
   paintAmountHint();
+  paintFrequent();
+  autoCategory();
 }
 /** Tasa que aplica al monto del formulario: la del día, o la original si se edita un movimiento antiguo. */
 function formRate() {
   const existing = form.editingId && state.transactions.find((t) => t.id === form.editingId);
   return existing && existing.orig && existing.orig.currency === form.currency
     ? existing.orig.rate
-    : unitsPerUsd(form.currency);
+    : form.currency === 'VES' ? vesRate(form.rateKind) : unitsPerUsd(form.currency);
 }
 function paintAmountHint() {
   const hint = $('#amount-hint');
+  // En bolívares, con las dos tasas cargadas, se puede elegir cuál aplica a este movimiento.
+  const seg = $('#f-rate');
+  const r = state.settings.rates;
+  const existing = form.editingId && state.transactions.find((t) => t.id === form.editingId);
+  const locked = existing && existing.orig && existing.orig.currency === form.currency;
+  const choose = form.currency === 'VES' && r.usd > 0 && r.par > 0 && !locked;
+  seg.hidden = !choose;
+  if (choose) setSeg(seg, form.rateKind === 'par' ? 1 : 0, 'aria-checked');
   const entered = parseAmount($('#f-amount').value);
   if (form.currency === 'USD' || entered <= 0) { hint.hidden = true; return; }
   const rate = formRate();
@@ -2234,7 +2489,7 @@ function clearAmountError() {
   $('#amount-error').hidden = true;
 }
 
-function openSheet(tx = null) {
+function openSheet(tx = null, preset = null) {
   form.opener = document.activeElement;
   form.editingId = tx ? tx.id : null;
   form.type = tx ? tx.type : 'expense';
@@ -2243,6 +2498,15 @@ function openSheet(tx = null) {
   form.currency = tx ? (inOrig ? tx.orig.currency : 'USD') : displayCurrency();
   $('#f-amount').value = tx ? centsToInput(inOrig ? tx.orig.amount : tx.amount) : '';
   $('#f-note').value = tx ? tx.note : '';
+  form.catTouched = !!tx; // al editar no se toca la categoría que ya tenía
+  form.rateKind = state.settings.rateMode === 'par' && state.settings.rates.par > 0 ? 'par' : 'bcv';
+  if (preset) { // viene del conversor o de dividir la cuenta
+    if (preset.currency && rateOk(preset.currency)) form.currency = preset.currency;
+    if (preset.rateKind) form.rateKind = preset.rateKind;
+    $('#f-amount').value = centsToInput(preset.amount);
+    if (preset.note) $('#f-note').value = preset.note;
+    if (preset.category) { form.category = preset.category; form.catTouched = true; }
+  }
   clearAmountError();
   paintForm();
   el.sheet.inert = false;
@@ -2251,7 +2515,7 @@ function openSheet(tx = null) {
   $('#dock').inert = true;
   el.app.classList.add('sheet-open');
   // En un movimiento nuevo abrimos el teclado de una vez; al editar, no.
-  if (!tx) {
+  if (!tx && !preset) {
     $('#f-amount').focus({ preventScroll: true });
     Pad.open($('#f-amount')); // el teclado propio no depende de que el foco llegue
   }
@@ -2278,6 +2542,7 @@ $('#f-type').addEventListener('click', (e) => {
   const b = e.target.closest('button[data-type]');
   if (!b || b.dataset.type === form.type) return;
   form.type = b.dataset.type;
+  if (!form.editingId) form.catTouched = false; // al cambiar de tipo, la nota vuelve a proponer categoría
   if (!CATEGORIES[form.type].includes(form.category)) form.category = CATEGORIES[form.type][0];
   paintForm();
 });
@@ -2285,6 +2550,8 @@ $('#f-cats').addEventListener('click', (e) => {
   const b = e.target.closest('button[data-cat]');
   if (!b) return;
   form.category = b.dataset.cat;
+  form.catTouched = true; // elegida a mano: ya no se cambia sola
+  paintSuggestion(null);
   $$('#f-cats .chip').forEach((c) => c.setAttribute('aria-checked', String(c === b)));
 });
 $('#f-amount').addEventListener('input', (e) => {
@@ -2329,7 +2596,7 @@ el.form.addEventListener('submit', (e) => {
     updateTransaction(editing, data);
     toast('Cambios guardados');
   } else {
-    if (ui.view === 'config') go('home');
+    if (ui.view === 'config' || TOOL_VIEWS.includes(ui.view)) go('home');
     const tx = addTransaction({ ...data, source: 'manual' });
     if (tx) {
       flyAmount(tx);
@@ -2629,40 +2896,53 @@ async function fetchOfficialRate() {
   return null;
 }
 let rateBusy = false;
+let lastRateTry = 0;
 async function refreshRate({ silent = false } = {}) {
   if (rateBusy) return false;
   rateBusy = true;
   const btn = $('#btn-rate');
   btn.disabled = true;
-  const got = await fetchOfficialRate();
+  const [got, par] = await Promise.all([fetchOfficialRate(), fetchParallel()]);
   btn.disabled = false;
   rateBusy = false;
-  if (!got) {
+  if (!got && !par) {
     if (!silent) {
       rateError(insideClaude || framed
         ? 'Desde dentro de Claude no se puede consultar internet. Escribe la tasa a mano; en tu propia dirección web se actualiza sola.'
-        : 'No se pudo consultar la tasa oficial. Revisa tu conexión o escríbela a mano.');
+        : 'No se pudieron consultar las tasas. Revisa tu conexión o escríbelas a mano.');
     }
     return false;
   }
   const r = state.settings.rates;
-  r.usd = got.usd;
-  if (Number.isFinite(got.eur) && got.eur > 0) r.eur = got.eur;
-  r.source = 'bcv';
-  r.updatedAt = new Date().toISOString();
-  r.effectiveDate = typeof got.effectiveDate === 'string' ? got.effectiveDate.slice(0, 10) : null;
+  if (got) {
+    r.usd = got.usd;
+    if (Number.isFinite(got.eur) && got.eur > 0) r.eur = got.eur;
+    r.source = 'bcv';
+    r.updatedAt = new Date().toISOString();
+    r.effectiveDate = typeof got.effectiveDate === 'string' ? got.effectiveDate.slice(0, 10) : null;
+  }
+  // El paralelo solo se acepta si tiene sentido frente a la oficial.
+  if (par && (!(r.usd > 0) || (par > r.usd * 0.5 && par < r.usd * 5))) {
+    r.par = par;
+    r.parUpdatedAt = new Date().toISOString();
+  }
+  recordRates();
   rateError('');
   persist();
   render();
-  if (!silent) toast('Tasa actualizada');
+  if (!silent) toast(got && r.parUpdatedAt && dayDiff(new Date(r.parUpdatedAt)) === 0 ? 'Tasas actualizadas' : got ? 'Tasa oficial actualizada' : 'Paralelo actualizado');
   return true;
 }
 /** Al abrir la app: si la tasa guardada no es de hoy, se consulta la oficial (solo fuera de Claude). */
 function autoRefreshRate() {
   if (!state.settings.autoRate || insideClaude || framed || navigator.onLine === false) return;
   const r = state.settings.rates;
-  const fresh = r.updatedAt && dayDiff(new Date(r.updatedAt)) === 0;
-  if (!fresh) refreshRate({ silent: true });
+  const isToday = (iso) => iso && dayDiff(new Date(iso)) === 0;
+  // Como mucho un intento cada media hora, para no insistir si una fuente está caída.
+  if (isToday(r.updatedAt) && (isToday(r.parUpdatedAt) || Date.now() - lastRateTry < 30 * 60000)) return;
+  if (Date.now() - lastRateTry < 60000) return;
+  lastRateTry = Date.now();
+  refreshRate({ silent: true });
 }
 $('#btn-rate').addEventListener('click', () => refreshRate());
 
@@ -2682,6 +2962,8 @@ function backupJson() {
     transactions: sortedTx(),
     plan: state.plan,
     investments: state.investments,
+    goals: state.goals,
+    rateHistory: rateHist,
   };
   return JSON.stringify(data, null, 2);
 }
@@ -2735,6 +3017,7 @@ $('#btn-copy').addEventListener('click', async () => {
 
 /* --- Importar --- */
 let pendingImport = null;
+let pendingHist = null;
 function importError(message) {
   const p = $('#import-error');
   p.textContent = message || '';
@@ -2753,6 +3036,7 @@ $('#imp-file').addEventListener('change', async (e) => {
   try {
     const parsed = JSON.parse(await file.text());
     pendingImport = sanitizeState(parsed);
+    pendingHist = sanitizeHist(parsed.rateHistory);
   } catch (err) {
     pendingImport = null;
     importError(err instanceof SyntaxError
@@ -2775,6 +3059,7 @@ $('#btn-import-ok').addEventListener('click', () => {
   if (!pendingImport) return;
   state = pendingImport;
   pendingImport = null;
+  if (pendingHist) { for (const k of ['bcv', 'par']) Object.assign(rateHist[k], pendingHist[k]); histSave(); }
   persist();
   $('#import-panel').hidden = true;
   applyAppearance();
@@ -2831,6 +3116,7 @@ const Pad = (() => {
   const root = $('#pad');
   let target = null;
   let fresh = false; // el valor que ya había se reemplaza con la primera tecla
+  let closingTimer = 0;
   const group = (v) => {
     const [int, dec] = v.split(',');
     const g = int.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -2857,6 +3143,8 @@ const Pad = (() => {
       || input.closest('.money-input, .amount__box')?.querySelector('span')?.textContent || '$';
     input.classList.add('is-editing');
     root.inert = false;
+    clearTimeout(closingTimer);
+    el.app.classList.remove('pad-closing');
     el.app.classList.add('pad-open');
     paint();
   }
@@ -2867,6 +3155,9 @@ const Pad = (() => {
     t.classList.remove('is-editing');
     root.inert = true;
     el.app.classList.remove('pad-open');
+    el.app.classList.add('pad-closing');
+    clearTimeout(closingTimer);
+    closingTimer = setTimeout(() => el.app.classList.remove('pad-closing'), 450);
     t.dispatchEvent(new Event('change', { bubbles: true }));
     if (document.activeElement === t) t.blur();
     else t.dispatchEvent(new Event('blur'));
@@ -2981,7 +3272,9 @@ function niceMax(v) {
  * @param {Element} box
  * @param {{dates: Date[], series: {name:string, values:number[]}[]}} data  values en céntimos de dólar
  */
-function drawLine(box, { dates, series }) {
+function drawLine(box, { dates, series }, opts = {}) {
+  const fmtV = opts.fmt || money;   // cómo se escribe un valor (por defecto, dinero en la moneda que se ve)
+  const axisV = opts.axis || compact;
   const W = 320, H = 156, L = 48, R = 8, T = 12, B = 24;
   const all = series.flatMap((s) => s.values);
   let min = Math.min(...all), max = Math.max(...all);
@@ -2995,19 +3288,20 @@ function drawLine(box, { dates, series }) {
   const y = (v) => T + (H - T - B) * (1 - (v - min) / (max - min));
   const path = (vals) => vals.map((v, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(' ');
   const base = H - B;
+  const fmtX = dates[0].getFullYear() === dates[n - 1].getFullYear() ? fmtShort : fmtShortYear; // con años distintos, la fecha lleva el año
   const ticks = [min + (max - min) * 0.1, (min + max) / 2, max - (max - min) * 0.1];
   const first = series[0].values;
   box.innerHTML = `
-    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${escapeHtml(series.map((s) => `${s.name}: de ${money(s.values[0])} a ${money(s.values[n - 1])}`).join('. '))}">
-      ${ticks.map((t) => `<line class="ch-grid" x1="${L}" x2="${W - R}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}"/><text class="ch-axis" x="${L - 8}" y="${(y(t) + 3.5).toFixed(1)}" text-anchor="end">${escapeHtml(compact(t))}</text>`).join('')}
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${escapeHtml(series.map((s) => `${s.name}: de ${fmtV(s.values[0])} a ${fmtV(s.values[n - 1])}`).join('. '))}">
+      ${ticks.map((t) => `<line class="ch-grid" x1="${L}" x2="${W - R}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}"/><text class="ch-axis" x="${L - 8}" y="${(y(t) + 3.5).toFixed(1)}" text-anchor="end">${escapeHtml(axisV(t))}</text>`).join('')}
       <path class="ch-area" d="${path(first)} L${x(n - 1).toFixed(1)} ${base} L${x(0).toFixed(1)} ${base} Z"/>
       ${series[1] ? `<path class="ch-line ch-line--b" d="${path(series[1].values)}"/>` : ''}
       <path class="ch-line" d="${path(first)}"/>
       <line class="ch-cross" y1="${T}" y2="${base}" hidden/>
       ${series[1] ? '<circle class="ch-end ch-end--b" r="4" data-dot="1" hidden/>' : ''}
       <circle class="ch-end" r="4" data-dot="0" cx="${x(n - 1).toFixed(1)}" cy="${y(first[n - 1]).toFixed(1)}"/>
-      <text class="ch-axis" x="${L}" y="${H - 6}">${escapeHtml(fmtShort.format(dates[0]))}</text>
-      <text class="ch-axis" x="${W - R}" y="${H - 6}" text-anchor="end">${escapeHtml(fmtShort.format(dates[n - 1]))}</text>
+      <text class="ch-axis" x="${L}" y="${H - 6}">${escapeHtml(fmtX.format(dates[0]))}</text>
+      <text class="ch-axis" x="${W - R}" y="${H - 6}" text-anchor="end">${escapeHtml(fmtX.format(dates[n - 1]))}</text>
     </svg>
     <div class="tip" hidden></div>`;
   const svg = $('svg', box), tip = $('.tip', box), cross = $('.ch-cross', box);
@@ -3035,7 +3329,7 @@ function drawLine(box, { dates, series }) {
       const mark = document.createElement('i');
       mark.className = 'dot' + (k ? ' dot--dash' : '');
       const val = document.createElement('b');
-      val.textContent = money(s.values[i]);
+      val.textContent = fmtV(s.values[i]);
       line.append(mark, val);
       if (series.length > 1) { const nm = document.createElement('span'); nm.textContent = s.name; line.appendChild(nm); }
       tip.appendChild(line);
@@ -3066,7 +3360,7 @@ function drawLine(box, { dates, series }) {
 function monthStats(first) {
   const from = first.getTime();
   const to = new Date(first.getFullYear(), first.getMonth() + 1, 1).getTime();
-  const out = { income: 0, spend: 0, saved: 0, count: 0, cats: {}, byDay: {}, top: null, opening: 0, deltas: {} };
+  const out = { income: 0, spend: 0, saved: 0, goal: 0, count: 0, cats: {}, byDay: {}, top: null, opening: 0, deltas: {} };
   for (const tx of state.transactions) {
     const date = new Date(tx.date);
     const t = date.getTime();
@@ -3075,7 +3369,8 @@ function monthStats(first) {
     const day = date.getDate();
     out.count += 1;
     out.deltas[day] = (out.deltas[day] || 0) + signedAmount(tx);
-    if (tx.type === 'income') out.income += tx.amount;
+    if (tx.category === 'meta') out.goal += tx.type === 'expense' ? tx.amount : -tx.amount;
+    else if (tx.type === 'income') out.income += tx.amount;
     else if (tx.category === 'ahorro') out.saved += tx.amount;
     else {
       out.spend += tx.amount;
@@ -3140,7 +3435,7 @@ function renderStats() {
   if (m.income > 0) {
     say.push(kept >= 0 ? `Te quedó el ${pctText(kept / m.income)} de lo que entró.` : `Gastaste ${money(-kept)} más de lo que entró.`);
   }
-  if (m.saved > 0) say.push(`Apartaste ${money(m.saved)} para ahorro.`);
+  if (m.saved > 0 || m.goal > 0) say.push(`Apartaste ${[m.saved > 0 ? `${money(m.saved)} para ahorro` : '', m.goal > 0 ? `${money(m.goal)} para tus metas` : ''].filter(Boolean).join(' y ')}.`);
 
   // Ventana de 6 meses que contiene el mes elegido
   const end = ui.mOff < -5 ? ui.mOff : 0;
@@ -3157,7 +3452,7 @@ function renderStats() {
   const facts = [];
   if (m.spend > 0) {
     facts.push(['Gasto promedio por día', money(Math.round(m.spend / lastDay))]);
-    if (isCurrent && lastDay < daysInMonth(first)) facts.push(['A este ritmo, el mes cerrará en', money(Math.round((m.spend / lastDay) * daysInMonth(first)))]);
+    if (isCurrent && lastDay < daysInMonth(first)) facts.push(['A este ritmo, el mes cerrará en', money(projectMonth(now, m).total)]);
     facts.push(['Gasto más grande', `${escapeHtml(m.top.note || CAT_LABEL[m.top.category])}, ${money(m.top.amount)}`]);
     facts.push(['Día con más gasto', `${busiest[0]} de ${monthName}, ${money(busiest[1])}`]);
   }
@@ -3504,7 +3799,7 @@ function recentSpend(days = 60) {
   const from = Date.now() - days * 864e5;
   const out = { cats: {}, count: 0 };
   for (const tx of state.transactions) {
-    if (tx.type !== 'expense' || tx.category === 'ahorro' || tx.demo || new Date(tx.date).getTime() < from) continue;
+    if (tx.type !== 'expense' || tx.category === 'ahorro' || tx.category === 'meta' || tx.demo || new Date(tx.date).getTime() < from) continue;
     out.cats[tx.category] = (out.cats[tx.category] || 0) + tx.amount;
     out.count += 1;
   }
@@ -3545,7 +3840,7 @@ function planAllocate(avail, picks) {
   items.reduce((a, b) => (share[b.category] > share[a.category] ? b : a)).amount += rest;
   return { items, useHist };
 }
-const planSig = (w) => JSON.stringify([w.income - w.savings, w.picks]);
+const planSig = (w) => JSON.stringify([wizAvail(w), w.picks]);
 
 function wizStart() {
   const p = state.plan;
@@ -3556,7 +3851,7 @@ function wizStart() {
     for (const it of p.items) w.picks[it.category] = it.level;
     w.fromHistory = false;
     w.items = p.items.map((it) => ({ ...it }));
-    w.sig = planSig(w);
+    w.sig = w.items.reduce((a, it) => a + it.amount, 0) <= wizAvail(w) ? planSig(w) : '';
   }
   ui.wiz = w;
   renderPlan();
@@ -3590,7 +3885,7 @@ function wizHtml(w) {
   if (w.step === 2) {
     return `${bar}
       <h2 class="wiz__q">¿Cuánto quieres apartar para ahorrar?</h2>
-      <p class="wiz__help">Se aparta primero y el resto se reparte entre tus gastos.</p>
+      <p class="wiz__help">Se aparta primero y el resto se reparte entre tus gastos.${goalsQuota() > 0 ? ` Tus metas ya piden ${fmt(goalsQuota(), 'USD')} al mes, aparte de este ahorro.` : ''}</p>
       <div class="card box">${big('pl-save', 'Ahorro del mes', w.savings)}
         <div class="chips">${[0, 10, 20, 30].map((p) => `<button type="button" class="chip" data-fill="pl-save" data-v="${Math.round((w.income * p) / 10000) * 100}">${p ? p + '%' : 'Nada'}</button>`).join('')}</div>
         <p class="say" id="pl-left"></p>${err}</div>
@@ -3609,7 +3904,8 @@ function wizHtml(w) {
         ${err}</div>
       ${nav('Ver mi plan')}`;
   }
-  const avail = w.income - w.savings;
+  const avail = wizAvail(w);
+  const quota = goalsQuota();
   return `${bar}
     <h2 class="wiz__q">Tu plan para el mes</h2>
     <p class="wiz__help">${w.useHist ? 'Lo repartí con lo que marcaste y con lo que has gastado en los últimos 60 días.' : 'Lo repartí con lo que marcaste y con proporciones habituales: casa y comida pesan más.'} Toca un monto para cambiarlo.</p>
@@ -3625,6 +3921,7 @@ function wizHtml(w) {
           <div class="alloc__main"><b>${CAT_LABEL[it.category]}</b><div class="meter"><i data-meter="${it.category}"></i></div></div>
           <div class="money-input money-input--sm"><span>$</span><input type="text" inputmode="none" readonly data-pad data-alloc="${it.category}" data-label="${CAT_LABEL[it.category]}" aria-label="${CAT_LABEL[it.category]}" autocomplete="off" placeholder="0" value="${it.amount ? inputFromCents(it.amount) : ''}"></div></div>`).join('')}
       ${w.savings > 0 ? `<div class="alloc"><span class="row__ico">${catIcon('ahorro')}</span><div class="alloc__main"><b>Ahorro</b><span class="state">Apartado en el paso 2</span></div><span class="alloc__fixed">${fmt(w.savings, 'USD')}</span></div>` : ''}
+      ${quota > 0 ? `<div class="alloc"><span class="row__ico">${catIcon('meta')}</span><div class="alloc__main"><b>Metas</b><span class="state">Cuotas de este mes</span></div><span class="alloc__fixed">${fmt(quota, 'USD')}</span></div>` : ''}
       ${err}
     </div>
     ${nav('Guardar plan')}`;
@@ -3633,11 +3930,11 @@ function wizLive() {
   const w = ui.wiz;
   if (!w) return;
   if (w.step === 2) {
-    const left = w.income - parseAmount($('#pl-save').value);
+    const left = w.income - goalsQuota() - parseAmount($('#pl-save').value);
     $('#pl-left').textContent = left >= 0 ? `Te quedan ${fmt(left, 'USD')} para gastar en el mes.` : 'El ahorro no puede ser mayor que el dinero del mes.';
   }
   if (w.step === 4) {
-    const avail = w.income - w.savings;
+    const avail = wizAvail(w);
     const used = w.items.reduce((a, it) => a + it.amount, 0);
     const rest = avail - used;
     $('#pl-rest-label').textContent = rest >= 0 ? 'Por asignar' : 'Te pasaste por';
@@ -3668,12 +3965,14 @@ function planDashHtml(plan) {
   const outsideSum = outside.reduce((a, [, v]) => a + v, 0);
   const ratio = planned > 0 ? m.spend / planned : 0;
   const cls = (r) => (r > 1 ? ' is-over' : r >= 0.8 ? ' is-warn' : '');
+  const gm = goalsMonth(now);
+  const overbooked = planned + plan.savings + gm.quota - plan.income;
   return `
     <div class="hero">
       <span class="hero__label">${left >= 0 ? `Te queda para gastar en ${fmtMonth.format(now)}` : 'Te pasaste del plan por'}</span>
       <span class="hero__amount${left < 0 ? ' is-over' : ''}">${money(Math.abs(left))}</span>
       <div class="meter${cls(ratio)}"><i style="width:${Math.min(100, ratio * 100).toFixed(1)}%"></i></div>
-      <span class="hero__sub">Has gastado ${money(m.spend)} de ${money(planned)}. ${left > 0 ? `${daysLeft === 1 ? 'Queda 1 día' : `Quedan ${daysLeft} días`}: hasta ${money(Math.floor(left / daysLeft))} por día.` : 'Frena los gastos que puedan esperar al próximo mes.'}</span>
+      <span class="hero__sub">Has gastado ${money(m.spend)} de ${money(planned)}. ${left > 0 ? `${daysLeft === 1 ? 'Queda 1 día' : `Quedan ${daysLeft} días`}: hasta ${money(dayPlan(now).perDay)} por día.` : 'Frena los gastos que puedan esperar al próximo mes.'}</span>
     </div>
     <section class="card box">
       <h2 class="card__title">Por categoría</h2>
@@ -3694,8 +3993,16 @@ function planDashHtml(plan) {
           <div class="meter"><i style="width:${Math.min(100, (m.saved / plan.savings) * 100).toFixed(1)}%"></i></div>
           <span></span><span class="state">${m.saved >= plan.savings ? 'Meta de ahorro cumplida' : `Faltan ${money(plan.savings - m.saved)}. Anótalo como gasto en la categoría Ahorro.`}</span>
         </div>` : ''}
+      ${gm.quota > 0 ? `<div class="catbar">
+          <span class="row__ico">${catIcon('meta')}</span>
+          <div class="catbar__top"><b>Metas</b><span><strong>${money(gm.month)}</strong> de ${money(gm.quota)}</span></div>
+          <div class="meter"><i style="width:${Math.min(100, (gm.month / gm.quota) * 100).toFixed(1)}%"></i></div>
+          <span></span><span class="state">${gm.pending > 0 ? `Faltan ${money(gm.pending)} de las cuotas de este mes.` : 'Cuotas del mes listas'}</span>
+        </div>` : ''}
+      ${overbooked > 0 ? `<p class="state is-warn">Entre el plan, el ahorro y tus metas se van ${money(overbooked)} más de lo que entra en el mes. Tu gasto diario ya lo descuenta; para cuadrarlo, toca «Cambiar plan».</p>` : ''}
       ${outsideSum > 0 ? `<p>Fuera del plan: ${money(outsideSum)} en ${outside.map(([c]) => CAT_LABEL[c]).join(', ')}.</p>` : ''}
     </section>
+    ${goalsSectionHtml()}
     <div class="btn-row">
       <button type="button" class="btn" data-plan="edit">Cambiar plan</button>
       <button type="button" class="btn btn--danger" data-plan="delete">Borrar plan</button>
@@ -3717,7 +4024,7 @@ function renderPlan() {
         <b>Reparte tu dinero antes de gastarlo</b>
         Te hago cuatro preguntas: con cuánto cuentas, cuánto quieres ahorrar y en qué gastas. Con eso armo cuánto destinar a cada cosa y te aviso si te pasas.
         <button type="button" class="btn btn--primary" data-plan="edit" style="margin-top:16px;width:100%">Crear mi plan</button>
-      </section>`;
+      </section>` + goalsSectionHtml();
   }
 }
 
@@ -3776,20 +4083,20 @@ $('#plan-body').addEventListener('click', (e) => {
     w.step = 2;
   } else if (w.step === 2) {
     const savings = parseAmount($('#pl-save').value);
-    if (savings >= w.income) { wizError('Deja algo para gastar: el ahorro tiene que ser menor que el dinero del mes.'); return; }
+    if (savings + goalsQuota() >= w.income) { wizError(goalsQuota() > 0 ? 'Deja algo para gastar: entre el ahorro y tus metas no puede irse todo el dinero del mes.' : 'Deja algo para gastar: el ahorro tiene que ser menor que el dinero del mes.'); return; }
     w.savings = savings;
     w.step = 3;
   } else if (w.step === 3) {
     if (!PLAN_CATS.some((c) => w.picks[c] !== 'none')) { wizError('Marca al menos una categoría.'); return; }
     if (planSig(w) !== w.sig) { // cambió el dinero o las marcas: se recalcula; si no, se respetan tus montos
-      const r = planAllocate(w.income - w.savings, w.picks);
+      const r = planAllocate(wizAvail(w), w.picks);
       w.items = r.items; w.useHist = r.useHist; w.sig = planSig(w);
     }
     w.step = 4;
   } else {
     const items = w.items.filter((it) => it.amount > 0);
     const used = items.reduce((a, it) => a + it.amount, 0);
-    if (!items.length || used > w.income - w.savings) return;
+    if (!items.length || used > wizAvail(w)) return;
     state.plan = { income: w.income, savings: w.savings, items: items.map((it) => ({ ...it })), updatedAt: new Date().toISOString() };
     state.settings.monthlyBudget = used;
     ui.wiz = null;
@@ -3802,11 +4109,1336 @@ $('#plan-body').addEventListener('click', (e) => {
   el.scroll.scrollTop = 0;
 });
 
+/* ==========================================================================
+   20. PIEZAS COMUNES DE LA VERSIÓN 2.2
+   ========================================================================== */
+const ICO = {
+  flag: '<path d="M6 21V4M6 4.500h11.500l-2.500 4 2.500 4H6"/>',
+  sun: '<circle cx="12" cy="12" r="3.600"/><path d="M12 3.500v2M12 18.500v2M3.500 12h2M18.500 12h2M6 6l1.400 1.400M16.600 16.600 18 18M18 6l-1.400 1.400M7.400 16.600 6 18"/>',
+  alert: '<path d="M12 4.500 3.500 19h17L12 4.500z"/><path d="M12 10.500v4M12 17h.010"/>',
+  down: '<path d="M4 7.500 9.500 13l3.500-3.500 7 7"/><path d="M15 16.500h5v-5"/>',
+  close: '<path d="M6 6l12 12M18 6 6 18"/>',
+  chev: '<path d="M9.500 6l6 6-6 6"/>',
+  check: '<path d="M5 12.500l4.500 4.500L19 7.500"/>',
+  minus: '<path d="M6 12h12"/>',
+  plus: '<path d="M12 6v12M6 12h12"/>',
+  calc: '<rect x="5" y="3.500" width="14" height="17" rx="3"/><path d="M8.500 7.500h7M8.500 12h.010M12 12h.010M15.500 12h.010M8.500 16h.010M12 16h.010M15.500 16h.010"/>',
+  people: '<circle cx="9" cy="8.500" r="3"/><path d="M3.500 19c.500-3 2.700-4.500 5.500-4.500s5 1.500 5.500 4.500M16 5.800a3 3 0 0 1 0 5.400M17.500 14.800c1.700.600 2.700 2 3 4.200"/>',
+  doc: '<path d="M7 3.500h7l4 4V19a1.500 1.500 0 0 1-1.500 1.500h-9.500A1.500 1.500 0 0 1 5.500 19V5A1.500 1.500 0 0 1 7 3.500z"/><path d="M13.500 3.500V8H18M9 12.500h6M9 16h4"/>',
+  swap: '<path d="M7 4 3.500 7.500 7 11M3.500 7.500H17M17 13l3.500 3.500L17 20M20.500 16.500H7"/>',
+  share: '<path d="M12 15V4M7.500 8.500 12 4l4.500 4.500M5 13v5.500A1.500 1.500 0 0 0 6.500 20h11a1.500 1.500 0 0 0 1.500-1.500V13"/>',
+};
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const keyDate = (key) => new Date(key + 'T12:00:00');
+const sum = (list) => list.reduce((a, b) => a + b, 0);
+/** Monto corto para ejes, en la moneda indicada y sin convertir. */
+function compactIn(cents, cur) {
+  const c = CURRENCIES[cur];
+  const v = cents / 100;
+  const a = Math.abs(v);
+  const one = (n) => n.toFixed(1).replace('.', ',').replace(',0', '');
+  const num = a >= 1e6 ? one(a / 1e6) + ' M' : a >= 1e4 ? Math.round(a / 1e3) + ' k' : a >= 1e3 ? one(a / 1e3) + ' k' : a >= 100 ? String(Math.round(a)) : one(a);
+  return (v < 0 ? '−' : '') + (c.prefix ? c.symbol + c.gap + num : num + c.gap + c.symbol);
+}
+const pct1 = (ratio) => (Math.abs(ratio) * 100).toFixed(1).replace('.', ',') + ' %';
+/** Comparte un texto con la hoja del sistema; si no hay, lo copia. */
+async function shareText(text) {
+  try {
+    if (navigator.share && !insideClaude && !framed) { await navigator.share({ text }); return; }
+  } catch (err) {
+    if (err && err.name === 'AbortError') return;
+  }
+  try { await navigator.clipboard.writeText(text); toast('Copiado: pégalo donde quieras'); }
+  catch (err) { toast('No se pudo copiar el texto'); }
+}
+
+/* ==========================================================================
+   21. METAS DE AHORRO
+   Cada meta tiene un costo, una fecha y sus propios registros (aportes y retiros). Va aparte
+   del ahorro del plan. La cuota del mes es lo que falta, repartido entre los meses que quedan.
+   ========================================================================== */
+function sanitizeGoal(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  const name = typeof raw.name === 'string' ? raw.name.trim().slice(0, 30) : '';
+  const target = Math.round(Number(raw.target));
+  if (!name || !Number.isFinite(target) || target <= 0 || !/^\d{4}-\d{2}-\d{2}$/.test(raw.due || '')) return null;
+  const entries = [];
+  for (const e of Array.isArray(raw.entries) ? raw.entries : []) {
+    const amount = Math.round(Number(e && e.amount));
+    const date = new Date(e && e.date);
+    if (!e || !Number.isFinite(amount) || amount === 0 || Number.isNaN(date.getTime())) continue;
+    const it = { id: typeof e.id === 'string' && e.id ? e.id : uid(), amount, date: date.toISOString() };
+    if (e.init === true) it.init = true;
+    entries.push(it);
+  }
+  entries.sort((a, b) => new Date(a.date) - new Date(b.date));
+  const created = new Date(raw.createdAt);
+  return {
+    id: typeof raw.id === 'string' && raw.id ? raw.id : uid(), name, target, due: raw.due,
+    createdAt: (Number.isNaN(created.getTime()) ? new Date() : created).toISOString(), entries,
+  };
+}
+/** Estado de una meta: guardado, cuota de este mes y lo que falta apartar en el mes. */
+function goalStats(g, now = new Date()) {
+  const monthStart = startOfMonth(now).getTime();
+  let saved = 0, before = 0, month = 0;
+  for (const e of g.entries) {
+    saved += e.amount;
+    // Lo que ya tenías al crear la meta no cuenta como cuota del mes.
+    if (e.init || new Date(e.date).getTime() < monthStart) before += e.amount; else month += e.amount;
+  }
+  saved = Math.max(0, saved);
+  const due = keyDate(g.due);
+  const monthsLeft = Math.max(1, (due.getFullYear() - now.getFullYear()) * 12 + due.getMonth() - now.getMonth() + 1);
+  const quota = Math.ceil(Math.max(0, g.target - before) / monthsLeft);
+  const remaining = Math.max(0, g.target - saved);
+  return {
+    saved, month, quota, monthsLeft, remaining, due,
+    pending: Math.max(0, Math.min(remaining, quota - month)),
+    done: saved >= g.target,
+    late: saved < g.target && startOfDay(now) > due,
+    pct: Math.min(1, saved / g.target),
+  };
+}
+/** Lo que piden las metas activas este mes. */
+function goalsMonth(now = new Date()) {
+  const out = { quota: 0, pending: 0, month: 0, list: [] };
+  for (const g of state.goals) {
+    const s = goalStats(g, now);
+    if (s.done) continue;
+    out.quota += s.quota; out.pending += s.pending; out.month += Math.max(0, s.month);
+    out.list.push({ g, s });
+  }
+  return out;
+}
+const goalsQuota = () => goalsMonth().quota;
+const wizAvail = (w) => w.income - w.savings - goalsQuota();
+/** Último día del mes en que termina un plazo de N meses contando el actual. */
+function dueAfter(months, now = new Date()) {
+  return dayKey(new Date(now.getFullYear(), now.getMonth() + months, 0));
+}
+
+function goalStateText(s, now = new Date()) {
+  if (s.done) return ['is-ok', 'Meta cumplida'];
+  if (s.late) return ['is-warn', `La fecha ya pasó; faltan ${money(s.remaining)}`];
+  const until = `hasta ${fmtMonthYear.format(s.due)}`;
+  if (s.pending > 0) return ['', `Aparta ${money(s.pending)} en ${fmtMonth.format(now)}, ${until}`];
+  return ['is-ok', `Cuota de ${fmtMonth.format(now)} lista, ${until}`];
+}
+function goalsSectionHtml() {
+  if (!state.goals.length) {
+    return `<section class="card box">
+      <h2 class="card__title">Metas</h2>
+      <p>¿Ahorras para algo concreto? Dime cuánto cuesta y para cuándo lo quieres: calculo cuánto apartar cada mes. Ese dinero va aparte de tu ahorro normal y no se cuenta para gastar.</p>
+      <button type="button" class="btn" data-goal="new">Crear una meta</button>
+    </section>`;
+  }
+  const now = new Date();
+  return `<section class="card moves">
+    <div class="card__head"><h2 class="card__title">Metas</h2><button type="button" class="link" data-goal="new">Nueva meta</button></div>
+    <div class="rows">${state.goals.map((g) => {
+      const s = goalStats(g, now);
+      const [cls, text] = goalStateText(s, now);
+      return `<button type="button" class="goal" data-goal-open="${escapeHtml(g.id)}">
+        <span class="row__ico">${icon(ICO.flag)}</span>
+        <span class="goal__top"><b>${escapeHtml(g.name)}</b><span><strong>${money(s.saved)}</strong> de ${money(g.target)}</span></span>
+        <span class="meter${s.done ? ' is-done' : ''}"><i style="width:${(s.pct * 100).toFixed(1)}%"></i></span>
+        <span class="state ${cls}">${escapeHtml(text)}</span>
+      </button>`;
+    }).join('')}</div>
+  </section>`;
+}
+
+const goalUi = { id: null, action: null, months: 6, editing: false };
+function goalPreview() {
+  const p = $('#gl-preview');
+  if (!p) return;
+  const target = parseAmount($('#gl-target').value);
+  const have = goalUi.editing ? goalStats(state.goals.find((g) => g.id === goalUi.id)).saved : parseAmount($('#gl-have')?.value || '');
+  const months = goalUi.months;
+  $('#gl-months').innerHTML = `${months}<small>${months === 1 ? 'mes' : 'meses'}</small>`;
+  $$('#pane-body [data-gstep]').forEach((b) => { b.disabled = (b.dataset.gstep === '-1' && months <= 1) || (b.dataset.gstep === '1' && months >= 60); });
+  $$('#pane-body [data-months]').forEach((c) => c.setAttribute('aria-checked', String(Number(c.dataset.months) === months)));
+  if (target <= 0) { p.textContent = 'Escribe cuánto cuesta y te digo cuánto apartar cada mes.'; return; }
+  const left = target - have;
+  if (left <= 0) { p.textContent = 'Con lo que ya tienes guardado, la meta está cubierta.'; return; }
+  const quota = Math.ceil(left / months);
+  const now = new Date();
+  const due = keyDate(dueAfter(months, now));
+  const parts = [`Aparta ${fmt(quota, 'USD')} al mes durante ${months === 1 ? 'este mes' : `${months} meses`} y la tendrás en ${fmtMonthYear.format(due)}.`];
+  if (state.settings.monthlyBudget > 0) parts.push(`Tu gasto diario baja unos ${fmt(Math.round(quota / daysInMonth(now)), 'USD')}.`);
+  if (summary().balance >= left) parts.push('Con tu saldo de hoy podrías apartarlo completo.');
+  p.textContent = parts.join(' ');
+}
+function goalForm(id = null) {
+  const g = id ? state.goals.find((x) => x.id === id) : null;
+  goalUi.id = g ? g.id : null;
+  goalUi.editing = !!g;
+  goalUi.months = g ? goalStats(g).monthsLeft : 6;
+  openPane(g ? 'Editar meta' : 'Nueva meta', `<div class="stack">
+    <div class="field"><label class="field-label" for="gl-name">Para qué es</label>
+      <input class="text-input" id="gl-name" type="text" maxlength="30" autocomplete="off" placeholder="Ej.: laptop, viaje, moto" value="${g ? escapeHtml(g.name) : ''}"></div>
+    ${padField('gl-target', 'Cuánto cuesta', g ? inputFromCents(g.target) : '')}
+    <div class="field"><span class="field-label">En cuánto tiempo</span>
+      <div class="stepper">
+        <button type="button" data-gstep="-1" aria-label="Un mes menos">${icon(ICO.minus)}</button>
+        <b id="gl-months" aria-live="polite"></b>
+        <button type="button" data-gstep="1" aria-label="Un mes más">${icon(ICO.plus)}</button>
+      </div>
+      <div class="chips chips--mini" role="radiogroup" aria-label="Plazos frecuentes">${[3, 6, 12, 24].map((n) => `<button type="button" class="chip" role="radio" data-months="${n}">${n} meses</button>`).join('')}</div></div>
+    ${g ? '' : padField('gl-have', 'Ya tengo guardado para esto (opcional)')}
+    ${g ? '' : toggleRow('iv-toggle', 'Descontar de mi saldo', 'Actívalo si eso que ya tienes sigue contado en tu saldo.', false)}
+    <p class="say" id="gl-preview" style="color:var(--ink)"></p>
+    <p class="error" id="iv-error" role="alert" hidden></p>
+    <button type="button" class="btn btn--primary btn--save" data-gact="save">${g ? 'Guardar cambios' : 'Crear meta'}</button>
+  </div>`);
+  goalPreview();
+}
+function goalDetail(id) {
+  const g = state.goals.find((x) => x.id === id);
+  if (!g) { closePane(); return; }
+  goalUi.id = id; goalUi.action = null;
+  const now = new Date();
+  const s = goalStats(g, now);
+  const [cls, text] = goalStateText(s, now);
+  openPane(g.name, `<div class="stack">
+    <div class="hero">
+      <span class="hero__label">Llevas guardado</span>
+      <span class="hero__amount">${money(s.saved)}</span>
+      <div class="meter${s.done ? ' is-done' : ''}"><i style="width:${(s.pct * 100).toFixed(1)}%"></i></div>
+      <span class="hero__sub">${pctText(s.pct)} de ${money(g.target)}. <span class="state ${cls}">${escapeHtml(text)}.</span></span>
+    </div>
+    <div class="metrics">
+      <div><span>Cuota de ${fmtMon.format(now).replace('.', '')}</span><b>${money(s.done ? 0 : s.quota)}</b></div>
+      <div><span>Falta</span><b>${money(s.remaining)}</b></div>
+      <div><span>Para</span><b>${escapeHtml(fmtMon.format(s.due).replace('.', ''))} ${s.due.getFullYear()}</b></div>
+    </div>
+    <div class="btn-row btn-row--3">
+      <button type="button" class="btn btn--primary" data-gact="in" ${s.done ? 'disabled' : ''}>Aportar</button>
+      <button type="button" class="btn" data-gact="out" ${s.saved > 0 ? '' : 'disabled'}>Retirar</button>
+      <button type="button" class="btn" data-gact="edit">Editar</button>
+    </div>
+    ${s.done ? '<p class="hint">Cuando hagas la compra, elimina la meta: ese dinero ya salió de tu saldo al apartarlo, así que no hay que anotarlo otra vez como gasto.</p>' : ''}
+    <div class="field"><span class="field-label">Registros</span>
+      ${g.entries.length ? `<div class="hist">${[...g.entries].reverse().map((e) => `
+        <div><span><b>${e.init ? 'Ya lo tenía' : e.amount > 0 ? 'Aporte' : 'Retiro'}</b><small>${capitalize(formatWhen(e.date))}</small></span>
+          <b>${e.amount > 0 ? '+' : '−'}${money(Math.abs(e.amount))}</b>
+          <button type="button" data-gact="del-entry" data-id="${escapeHtml(e.id)}" aria-label="Borrar este registro">${icon(ICO.close)}</button></div>`).join('')}</div>`
+        : '<p class="hint">Aún no has apartado nada para esta meta.</p>'}</div>
+    ${s.saved > 0 && !s.done ? '<p class="hint">Si eliminas la meta, lo apartado no vuelve solo a tu saldo: retíralo antes si lo vas a usar.</p>' : ''}
+    <button type="button" class="btn btn--ghost-danger" data-gact="delete">Eliminar meta</button>
+  </div>`);
+}
+function goalMoveForm(action) {
+  const g = state.goals.find((x) => x.id === goalUi.id);
+  if (!g) return;
+  goalUi.action = action;
+  const s = goalStats(g);
+  const isIn = action === 'in';
+  const suggested = isIn ? (s.pending || Math.min(s.quota, s.remaining)) : 0;
+  openPane(`${isIn ? 'Aportar a' : 'Retirar de'} ${g.name}`, `<div class="stack">
+    ${padField('gl-amount', isIn ? 'Cuánto vas a apartar' : 'Cuánto vas a retirar', suggested ? inputFromCents(suggested) : '')}
+    <p class="hint">${isIn ? `Te faltan ${money(s.remaining)} para completar la meta.` : `Tienes ${money(s.saved)} guardados en esta meta.`}</p>
+    ${isIn
+      ? toggleRow('iv-toggle', 'Descontar de mi saldo', 'Sale de tu saldo como dinero apartado, no como gasto.', true)
+      : toggleRow('iv-toggle', 'Sumar a mi saldo', 'Vuelve a tu saldo para gastarlo.', true)}
+    <p class="error" id="iv-error" role="alert" hidden></p>
+    <div class="wiz__nav">
+      <button type="button" class="btn" data-gact="back">Volver</button>
+      <button type="button" class="btn btn--primary" data-gact="move">Guardar</button>
+    </div>
+  </div>`);
+  requestAnimationFrame(() => { const f = $('#gl-amount'); if (f) { f.focus({ preventScroll: true }); Pad.open(f); } });
+}
+
+document.addEventListener('click', (e) => {
+  const neu = e.target.closest('[data-goal="new"]');
+  const open = e.target.closest('[data-goal-open]');
+  if (neu) goalForm();
+  else if (open) goalDetail(open.dataset.goalOpen);
+});
+$('#pane-body').addEventListener('input', (e) => { if (e.target.id === 'gl-target' || e.target.id === 'gl-have') goalPreview(); });
+$('#pane-body').addEventListener('click', (e) => {
+  const step = e.target.closest('[data-gstep]');
+  const chip = e.target.closest('[data-months]');
+  if (step || chip) {
+    goalUi.months = chip ? Number(chip.dataset.months) : Math.max(1, Math.min(60, goalUi.months + Number(step.dataset.gstep)));
+    goalPreview();
+    return;
+  }
+  const act = e.target.closest('[data-gact]')?.dataset.gact;
+  if (!act) return;
+  const g = state.goals.find((x) => x.id === goalUi.id);
+  const toggled = () => $('#iv-toggle')?.getAttribute('aria-checked') === 'true';
+
+  if (act === 'save') {
+    const name = $('#gl-name').value.trim().slice(0, 30);
+    const target = parseAmount($('#gl-target').value);
+    if (!name) { invError('Ponle un nombre a la meta.'); return; }
+    if (target <= 0) { invError('Escribe cuánto cuesta.'); return; }
+    Pad.close();
+    if (goalUi.editing && g) {
+      g.name = name; g.target = target; g.due = dueAfter(goalUi.months);
+      persist(); render(); goalDetail(g.id);
+      toast('Meta actualizada');
+      return;
+    }
+    const have = Math.min(target, parseAmount($('#gl-have').value));
+    const goal = { id: uid(), name, target, due: dueAfter(goalUi.months), createdAt: new Date().toISOString(), entries: [] };
+    if (have > 0) goal.entries.push({ id: uid(), amount: have, date: new Date().toISOString(), init: true });
+    state.goals.push(goal);
+    const discount = have > 0 && toggled();
+    persist();
+    closePane();
+    if (discount) addTransaction({ type: 'expense', amount: have, category: 'meta', goal: goal.id, note: `Meta: ${name}`.slice(0, 80), source: 'manual' });
+    else render();
+    toast('Meta creada');
+  } else if (act === 'in' || act === 'out') {
+    goalMoveForm(act);
+  } else if (act === 'edit') {
+    goalForm(goalUi.id);
+  } else if (act === 'back') {
+    Pad.close();
+    goalDetail(goalUi.id);
+  } else if (act === 'move' && g) {
+    const amount = parseAmount($('#gl-amount').value);
+    const isIn = goalUi.action === 'in';
+    const s = goalStats(g);
+    if (amount <= 0) { invError('Escribe un monto mayor que cero.'); return; }
+    if (!isIn && amount > s.saved) { invError(`No puedes retirar más de lo guardado: ${money(s.saved)}.`); return; }
+    const move = toggled();
+    Pad.close();
+    g.entries.push({ id: uid(), amount: isIn ? amount : -amount, date: new Date().toISOString() });
+    persist();
+    const note = `Meta: ${g.name}`.slice(0, 80);
+    if (move) addTransaction({ type: isIn ? 'expense' : 'income', amount, category: 'meta', goal: g.id, note, source: 'manual' });
+    else render();
+    goalDetail(g.id);
+    const after = goalStats(g);
+    toast(isIn ? (after.done ? 'Meta cumplida' : 'Aporte guardado') : 'Retiro guardado');
+  } else if (act === 'del-entry' && g) {
+    g.entries = g.entries.filter((x) => x.id !== e.target.closest('[data-id]').dataset.id);
+    persist(); render();
+    goalDetail(g.id);
+    toast('Registro borrado');
+  } else if (act === 'delete' && g) {
+    const btn = e.target.closest('[data-gact]');
+    if (!btn.classList.contains('is-armed')) {
+      btn.classList.add('is-armed');
+      btn.textContent = 'Toca otra vez para eliminarla';
+      return;
+    }
+    state.goals = state.goals.filter((x) => x.id !== g.id);
+    persist(); closePane(); render();
+    toast('Meta eliminada');
+  }
+});
+
+/* ==========================================================================
+   22. CUÁNTO GASTAR HOY Y AVISOS
+   Un solo cálculo alimenta la nota del inicio y el medidor "Hoy": lo que queda del
+   presupuesto del mes, sin pasar del dinero libre (saldo menos lo que falta apartar para
+   metas y ahorro), repartido entre los días que quedan.
+   ========================================================================== */
+/** Cierre estimado del mes. Casa y servicios son pagos de una vez: no se proyectan como gasto diario. */
+function projectMonth(now, m) {
+  const day = now.getDate();
+  const lumpy = (m.cats.hogar || 0) + (m.cats.servicios || 0);
+  const rate = (m.spend - lumpy) / day;
+  return { total: Math.round(m.spend + rate * (daysInMonth(now) - day)), rate: Math.round(rate) };
+}
+function dayPlan(now = new Date()) {
+  const s = summary(now);
+  const m = monthStats(startOfMonth(now));
+  const daysLeft = daysInMonth(now) - now.getDate() + 1;
+  const goals = goalsMonth(now);
+  const savePending = state.plan ? Math.max(0, state.plan.savings - m.saved) : 0;
+  const reserve = goals.pending + savePending;
+  let budget = state.settings.monthlyBudget;
+  // Con plan, las cuotas de las metas salen del dinero del mes antes que los gastos.
+  if (state.plan && budget > 0) budget = Math.max(0, Math.min(budget, state.plan.income - state.plan.savings - goals.quota));
+  const today = s.today.expense;
+  const spentBefore = m.spend - today;
+  const cash = s.balance + today - reserve; // dinero libre al empezar el día
+  const byBudget = budget > 0 ? budget - spentBefore : Infinity;
+  const base = Math.min(byBudget, cash);
+  const perDay = Math.max(0, Math.floor(base / daysLeft));
+  return {
+    s, m, goals, savePending, reserve, budget, today, spentBefore, cash, byBudget, base, perDay, daysLeft,
+    limiter: budget > 0 && byBudget <= cash ? 'budget' : 'cash',
+    left: perDay - today,
+    tomorrow: daysLeft > 1 ? Math.max(0, Math.floor((base - today) / (daysLeft - 1))) : 0,
+  };
+}
+
+const DISMISS_KEY = 'bolsillo:avisos';
+function dismissed() {
+  try { const j = JSON.parse(mem.get(DISMISS_KEY)); return Array.isArray(j) ? j : []; } catch (err) { return []; }
+}
+function dismissAlert(key) {
+  const tag = dayKey(new Date()).slice(0, 7);
+  mem.set(DISMISS_KEY, JSON.stringify([...dismissed().filter((k) => k.includes(tag)), key]));
+}
+/** Avisos que solo salen cuando hacen falta. Uno a la vez, el más serio; al ocultarlo aparece el siguiente si lo hay. */
+function planAlerts(now, dp) {
+  const out = [];
+  const tag = dayKey(now).slice(0, 7);
+  const month = fmtMonth.format(now);
+  const dleft = dp.daysLeft - 1;
+  const leftText = dleft === 0 ? 'hoy cierra el mes' : dleft === 1 ? 'queda 1 día' : `quedan ${dleft} días`;
+  const elapsed = now.getDate() / daysInMonth(now);
+  if (state.plan) {
+    for (const it of state.plan.items) {
+      const spent = dp.m.cats[it.category] || 0;
+      const r = spent / it.amount;
+      const label = CAT_LABEL[it.category];
+      const lumpy = it.category === 'hogar' || it.category === 'servicios'; // se pagan de una vez: llegar al tope es lo normal
+      if (r > 1) {
+        out.push({ key: `cat:${it.category}:100:${tag}`, tone: 'over', pri: 3, title: `${label} pasó su plan por <b>${money(spent - it.amount)}</b>`, sub: `Llevas ${money(spent)} de ${money(it.amount)} y ${leftText}.` });
+      } else if (!lumpy && r >= 0.8 && r > elapsed + 0.15) {
+        out.push({ key: `cat:${it.category}:80:${tag}`, tone: 'warn', pri: 1, title: r >= 1 ? `${label} llegó al tope de su plan` : `${label} va en ${Math.round(r * 100)} % de su plan`, sub: r >= 1 ? `Ya usaste los ${money(it.amount)} y ${leftText}.` : `Te quedan ${money(it.amount - spent)} y ${leftText}.` });
+      }
+    }
+  }
+  if (dp.budget > 0) {
+    const proj = projectMonth(now, dp.m);
+    if (dp.m.spend > dp.budget) {
+      out.push({ key: `mes:100:${tag}`, tone: 'over', pri: 4, title: `Pasaste el presupuesto de ${month} por <b>${money(dp.m.spend - dp.budget)}</b>`, sub: dleft > 0 ? `Frena lo que pueda esperar: ${leftText}.` : 'Hoy cierra el mes.' });
+    } else if (now.getDate() >= 5 && dleft >= 2 && proj.total > dp.budget * 1.05) {
+      out.push({ key: `proy:${tag}:${Math.floor(now.getDate() / 7)}`, tone: 'warn', pri: 2, title: `A este ritmo cierras ${month} <b>${money(proj.total - dp.budget)}</b> por encima`, sub: `Vas a unos ${money(proj.rate)} al día y tu margen es de ${money(dp.perDay)}.` });
+    }
+  }
+  if (dleft <= 4) {
+    for (const { g, s } of dp.goals.list) {
+      if (s.pending > 0) out.push({ key: `meta:${g.id}:${tag}`, tone: '', pri: 1, ico: ICO.flag, title: `Faltan <b>${money(s.pending)}</b> para la cuota de ${escapeHtml(g.name)}`, sub: capitalize(leftText) + ` de ${month}.` });
+    }
+  }
+  const hidden = dismissed();
+  return out.filter((a) => !hidden.includes(a.key)).sort((a, b) => b.pri - a.pri).slice(0, 1);
+}
+function dayNote(dp) {
+  const names = dp.goals.list.filter((x) => x.s.pending > 0).map((x) => x.g.name);
+  const apart = [];
+  if (dp.goals.pending > 0) apart.push(`${money(dp.goals.pending)} de ${names.length === 1 ? `tu meta ${escapeHtml(names[0])}` : 'tus metas'}`);
+  if (dp.savePending > 0) apart.push(`${money(dp.savePending)} de ahorro`);
+  const why = apart.length
+    ? `Ya reserva ${apart.join(' y ')}.`
+    : dp.today > 0
+      ? `${money(dp.perDay)} al día hasta fin de mes, según tu ${dp.limiter === 'budget' ? (state.plan ? 'plan' : 'presupuesto') : 'saldo'}.`
+      : `Es lo que da tu ${dp.limiter === 'budget' ? (state.plan ? 'plan' : 'presupuesto') : 'saldo'} repartido hasta fin de mes.`;
+  if (dp.perDay <= 0) {
+    return { tone: 'over', title: 'Hoy no hay margen para gastar', sub: dp.limiter === 'cash' ? (dp.reserve > 0 ? 'Tu saldo ya está comprometido con tus metas y tu ahorro.' : 'Tu saldo no da para más este mes.') : 'Ya usaste el presupuesto del mes.' };
+  }
+  if (dp.left < 0) {
+    return { tone: 'warn', title: `Hoy te pasaste por <b>${money(-dp.left)}</b>`, sub: dp.daysLeft > 1 ? `Para compensar, mañana tu día baja a ${money(dp.tomorrow)}.` : 'Es el último día del mes.' };
+  }
+  return { tone: '', title: dp.today > 0 ? `Te quedan <b>${money(dp.left)}</b> para hoy` : `Hoy puedes gastar <b>${money(dp.perDay)}</b>`, sub: why };
+}
+let notesShown = '';
+function paintNotes(now, dp) {
+  const n = dayNote(dp);
+  const alerts = planAlerts(now, dp);
+  const html = `<button type="button" class="note${n.tone ? ' note--' + n.tone : ''}" data-note="day" aria-label="Ver de dónde sale esta cifra">
+      <span class="note__ico">${icon(ICO.sun)}</span>
+      <span class="note__main"><span class="note__title">${n.title}</span><span class="note__sub">${n.sub}</span></span>
+      <span class="note__end">${icon(ICO.chev)}</span>
+    </button>` + alerts.map((a) => `<div class="note note--alert${a.tone ? ' note--' + a.tone : ''}">
+      <span class="note__ico">${icon(a.ico || (a.tone === 'over' ? ICO.alert : ICO.down))}</span>
+      <button type="button" class="note__main" data-go="plan"><span class="note__title">${a.title}</span><span class="note__sub">${a.sub}</span></button>
+      <button type="button" class="note__end" data-dismiss="${escapeHtml(a.key)}" aria-label="Ocultar este aviso">${icon(ICO.close)}</button>
+    </div>`).join('');
+  if (html === notesShown) return; // no se repinta (ni se vuelve a animar) si no cambió
+  notesShown = html;
+  $('#notes').innerHTML = html;
+}
+function dayExplain() {
+  const now = new Date();
+  const dp = dayPlan(now);
+  const rows = [];
+  if (dp.budget > 0) {
+    rows.push([state.plan ? 'Tu plan para gastar este mes' : 'Presupuesto del mes', money(dp.budget)]);
+    rows.push(['Gastado hasta ayer', '−' + money(dp.spentBefore)]);
+    rows.push(['Te queda del presupuesto', money(dp.byBudget)]);
+  }
+  rows.push(['Tu saldo al empezar el día', money(dp.s.balance + dp.today)]);
+  for (const { g, s } of dp.goals.list) if (s.pending > 0) rows.push([`Falta apartar para ${escapeHtml(g.name)}`, '−' + money(s.pending)]);
+  if (dp.savePending > 0) rows.push(['Falta apartar de ahorro', '−' + money(dp.savePending)]);
+  if (dp.reserve > 0) rows.push(['Saldo libre', money(dp.cash)]);
+  rows.push(['Días que quedan, contando hoy', String(dp.daysLeft)]);
+  const n = dayNote(dp);
+  openPane('Tu día', `<div class="stack">
+    <div class="hero">
+      <span class="hero__label">Para gastar hoy</span>
+      <span class="hero__amount${dp.left < 0 ? ' is-over' : ''}">${money(dp.perDay)}</span>
+      <span class="hero__sub">${dp.today > 0 ? `Hoy llevas ${money(dp.today)}. ` : ''}${n.sub}</span>
+    </div>
+    <ul class="facts">${rows.map(([k, v]) => `<li><span>${k}</span><b>${v}</b></li>`).join('')}</ul>
+    <p class="hint">${dp.budget > 0
+      ? `Tomo lo menor entre lo que queda de tu presupuesto y tu saldo libre (${money(Math.max(0, dp.base))}) y lo reparto entre los días que quedan. Si un día gastas menos, los siguientes suben; si gastas más, bajan.`
+      : `Sin presupuesto ni plan, reparto tu saldo libre (${money(Math.max(0, dp.base))}) entre los días que quedan del mes. Con un plan la cifra es más precisa.`}</p>
+    <button type="button" class="btn" data-go="plan" data-close-pane>${state.plan ? 'Ver mi plan y mis metas' : 'Crear mi plan'}</button>
+  </div>`);
+}
+$('#notes').addEventListener('click', (e) => {
+  const x = e.target.closest('[data-dismiss]');
+  if (x) { dismissAlert(x.dataset.dismiss); renderHome(); return; }
+  if (e.target.closest('[data-note="day"]')) dayExplain();
+});
+document.addEventListener('click', (e) => { if (e.target.closest('[data-close-pane]')) closePane(); });
+
+/* ==========================================================================
+   23. AUTOCATEGORIZAR
+   Al escribir la nota se propone la categoría. Primero manda tu propio historial (cómo
+   clasificaste antes esa misma nota o sus palabras); si no hay, un diccionario de base.
+   ========================================================================== */
+const norm = (s) => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+const STOP = new Set(['con', 'del', 'los', 'las', 'una', 'uno', 'por', 'para', 'que', 'mes', 'pago', 'compra', 'the', 'mis', 'sus', 'este', 'esta', 'hoy']);
+const KEYWORDS = {
+  expense: {
+    comida: ['almuerzo', 'desayuno', 'cena', 'comida', 'mercado', 'automercado', 'supermercado', 'abasto', 'bodega', 'panaderia', 'pan', 'arepa', 'empanada', 'cachapa', 'pizza', 'hamburguesa', 'pollo', 'carne', 'charcuteria', 'verdura', 'fruta', 'cafe', 'restaurante', 'sushi', 'perro', 'helado', 'merienda', 'chucheria', 'refresco', 'agua', 'cerveza', 'licor', 'delivery', 'pedidosya', 'yummy', 'mcdonald', 'kfc', 'farmatodo comida', 'gama', 'plaza', 'excelsior', 'forum', 'kromi', 'makro'],
+    transporte: ['gasolina', 'bomba', 'taxi', 'metro', 'bus', 'autobus', 'camioneta', 'pasaje', 'ridery', 'uber', 'moto', 'mototaxi', 'estacionamiento', 'peaje', 'caucho', 'aceite', 'mecanico', 'taller', 'repuesto', 'lavado', 'vuelo', 'boleto'],
+    hogar: ['alquiler', 'condominio', 'arriendo', 'hipoteca', 'mueble', 'reparacion', 'plomero', 'ferreteria', 'pintura', 'limpieza', 'detergente', 'bombona', 'gas', 'colchon', 'cocina', 'nevera', 'lavadora'],
+    servicios: ['internet', 'luz', 'corpoelec', 'cantv', 'inter', 'netuno', 'fibra', 'telefono', 'recarga', 'saldo', 'movistar', 'digitel', 'movilnet', 'simple', 'hidrocapital', 'aseo', 'cable', 'directv', 'seguro', 'icloud', 'google'],
+    salud: ['farmacia', 'farmatodo', 'locatel', 'farmahorro', 'medicina', 'medico', 'doctor', 'consulta', 'clinica', 'examen', 'laboratorio', 'odontologo', 'dentista', 'lentes', 'pastilla', 'gimnasio', 'gym', 'vitamina', 'terapia'],
+    ocio: ['cine', 'netflix', 'spotify', 'disney', 'hbo', 'youtube', 'juego', 'steam', 'playstation', 'xbox', 'fiesta', 'rumba', 'bar', 'discoteca', 'concierto', 'playa', 'viaje', 'hotel', 'posada', 'salida', 'parque', 'entrada', 'trago', 'bowling'],
+    compras: ['ropa', 'zapato', 'camisa', 'pantalon', 'franela', 'vestido', 'zara', 'shein', 'amazon', 'mercadolibre', 'regalo', 'telefono nuevo', 'celular', 'audifono', 'cargador', 'forro', 'perfume', 'maquillaje', 'barberia', 'peluqueria', 'corte', 'traki', 'tienda'],
+    educacion: ['universidad', 'colegio', 'curso', 'clase', 'libro', 'matricula', 'mensualidad', 'inscripcion', 'udemy', 'platzi', 'cuaderno', 'utiles', 'fotocopia', 'tesis', 'diplomado', 'ingles'],
+    ahorro: ['ahorro', 'alcancia', 'guardado', 'apartado'],
+  },
+  income: {
+    sueldo: ['sueldo', 'quincena', 'salario', 'nomina', 'pago', 'bono', 'cestaticket', 'aguinaldo', 'utilidades', 'honorarios', 'freelance'],
+    ventas: ['venta', 'vendi', 'cliente', 'pedido', 'encargo', 'trabajo', 'diseno', 'servicio', 'comision'],
+    regalo: ['regalo', 'remesa', 'mama', 'papa', 'cumpleanos', 'ayuda', 'prestamo'],
+    inversion: ['interes', 'dividendo', 'ganancia', 'rendimiento', 'cripto', 'binance', 'staking', 'retiro'],
+  },
+};
+/** Categoría probable para una nota, o null si no hay pistas. */
+function suggestCategory(note, type) {
+  const full = norm(note);
+  const tokens = full.split(' ').filter((t) => t.length >= 3 && !STOP.has(t));
+  if (!tokens.length) return null;
+  const score = {};
+  const add = (cat, pts) => { score[cat] = (score[cat] || 0) + pts; };
+  for (const tx of state.transactions) {
+    if (tx.type !== type || !tx.note || tx.demo || !CATEGORIES[type].includes(tx.category)) continue;
+    const n = norm(tx.note);
+    if (n === full) { add(tx.category, 6); continue; }
+    const words = n.split(' ');
+    for (const t of tokens) if (words.includes(t)) add(tx.category, 2);
+  }
+  for (const [cat, words] of Object.entries(KEYWORDS[type] || {})) {
+    for (const t of tokens) {
+      if (words.some((w) => (w.length >= 4 ? t.startsWith(w) : t === w))) add(cat, 1.5);
+    }
+  }
+  const best = Object.entries(score).sort((a, b) => b[1] - a[1])[0];
+  return best && best[1] >= 1.5 ? best[0] : null;
+}
+/** Notas que más repites (últimos 90 días), con su categoría y, si siempre es igual, su monto. */
+function frequentNotes(type) {
+  const from = Date.now() - 90 * 864e5;
+  const groups = new Map();
+  for (const tx of state.transactions) {
+    if (tx.type !== type || !tx.note || tx.demo || tx.category === 'meta' || new Date(tx.date).getTime() < from) continue;
+    const key = norm(tx.note);
+    if (!key) continue;
+    const g = groups.get(key) || { note: tx.note, count: 0, last: 0, cats: {}, amounts: [] };
+    const t = new Date(tx.date).getTime();
+    g.count += 1;
+    if (t > g.last) { g.last = t; g.note = tx.note; }
+    g.cats[tx.category] = (g.cats[tx.category] || 0) + 1;
+    g.amounts.push(tx.orig ? null : tx.amount);
+    groups.set(key, g);
+  }
+  return [...groups.values()].filter((g) => g.count >= 2)
+    .sort((a, b) => b.count - a.count || b.last - a.last).slice(0, 3)
+    .map((g) => ({
+      note: g.note,
+      category: Object.entries(g.cats).sort((a, b) => b[1] - a[1])[0][0],
+      amount: g.amounts.every((a) => a && a === g.amounts[0]) ? g.amounts[0] : null,
+    }));
+}
+function paintSuggestion(cat) {
+  const pill = $('#f-sugg');
+  pill.hidden = !cat;
+  $('#note-wrap').classList.toggle('has-sugg', !!cat);
+  $('#cat-auto').hidden = !cat;
+  if (cat) pill.innerHTML = `${catIcon(cat)}${CAT_LABEL[cat]}`;
+}
+function autoCategory() {
+  if (form.catTouched) { paintSuggestion(null); return; }
+  const cat = suggestCategory($('#f-note').value, form.type);
+  if (cat && cat !== form.category) {
+    form.category = cat;
+    $$('#f-cats .chip').forEach((c) => c.setAttribute('aria-checked', String(c.dataset.cat === cat)));
+  }
+  paintSuggestion(cat);
+}
+function paintFrequent() {
+  const box = $('#f-freq');
+  const list = form.editingId ? [] : frequentNotes(form.type);
+  box.hidden = !list.length;
+  box.innerHTML = list.map((f, i) => `<button type="button" class="chip" data-freq="${i}">${catIcon(f.category)}${escapeHtml(f.note)}</button>`).join('');
+  box._list = list;
+}
+$('#f-note').addEventListener('input', autoCategory);
+$('#f-freq').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-freq]');
+  const f = b && $('#f-freq')._list[Number(b.dataset.freq)];
+  if (!f) return;
+  $('#f-note').value = f.note;
+  form.category = f.category;
+  form.catTouched = true;
+  $$('#f-cats .chip').forEach((c) => c.setAttribute('aria-checked', String(c.dataset.cat === f.category)));
+  paintSuggestion(null);
+  if (f.amount && !parseAmount($('#f-amount').value) && form.currency === 'USD') {
+    Pad.close();
+    $('#f-amount').value = centsToInput(f.amount);
+    clearAmountError();
+  }
+});
+$('#f-rate').addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-rk]');
+  if (!b) return;
+  form.rateKind = b.dataset.rk;
+  paintAmountHint();
+});
+window.Bolsillo.suggestCategory = suggestCategory;
+
+/* ==========================================================================
+   24. TASAS: SEGUNDA TASA E HISTORIAL
+   Además de la oficial se guarda la del paralelo. Cada día que se abre la app queda anotada
+   la tasa en un historial propio (aparte de los movimientos); con internet se completa hacia
+   atrás desde bcv.today. Con ese historial se calcula cuánto valor pierde el bolívar.
+   ========================================================================== */
+const RH_KEY = 'bolsillo:tasas';
+function sanitizeHist(j) {
+  const out = { bcv: {}, par: {} };
+  if (j && typeof j === 'object') {
+    for (const k of ['bcv', 'par']) {
+      const src = j[k];
+      if (!src || typeof src !== 'object') continue;
+      for (const [d, v] of Object.entries(src)) if (/^\d{4}-\d{2}-\d{2}$/.test(d) && Number(v) > 0) out[k][d] = Number(v);
+    }
+  }
+  return out;
+}
+let rateHist = (() => { try { return sanitizeHist(JSON.parse(mem.get(RH_KEY))); } catch (err) { return sanitizeHist(null); } })();
+let histCache = {};
+function histPut(kind, key, value) {
+  if (!(value > 0) || !/^\d{4}-\d{2}-\d{2}$/.test(key)) return;
+  rateHist[kind][key] = Math.round(value * 10000) / 10000;
+  histCache = {};
+}
+function histSave() {
+  const min = dayKey(addDays(new Date(), -800));
+  for (const k of ['bcv', 'par']) for (const d of Object.keys(rateHist[k])) if (d < min) delete rateHist[k][d];
+  histCache = {};
+  mem.set(RH_KEY, JSON.stringify(rateHist));
+}
+const histSeries = (kind) => (histCache[kind] || (histCache[kind] = Object.entries(rateHist[kind]).sort((a, b) => (a[0] < b[0] ? -1 : 1))));
+/** Tasa conocida en esa fecha: el último dato de ese día o anterior. */
+function rateOn(kind, key) {
+  let best = null;
+  for (const [d, v] of histSeries(kind)) { if (d <= key) best = v; else break; }
+  return best;
+}
+const curRate = (kind) => (kind === 'par' ? state.settings.rates.par : state.settings.rates.usd) || 0;
+/** Anota en el historial las tasas que hay ahora mismo. */
+function recordRates() {
+  const today = dayKey(new Date());
+  histPut('bcv', today, curRate('bcv'));
+  histPut('par', today, curRate('par'));
+  histSave();
+}
+async function getJson(url, ms = 8000) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  try {
+    const res = await fetch(url, { cache: 'no-store', signal: ctrl.signal });
+    return res.ok ? await res.json() : null;
+  } catch (err) {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+/* Dólar paralelo: DolarApi publica el promedio en /dolares/paralelo. No pude probar el formato
+   desde aquí, así que se leen varios nombres de campo y, si no cuadra, se ignora. */
+async function fetchParallel() {
+  const pick = (o) => (o && typeof o === 'object' ? Number(o.promedio ?? o.venta ?? o.compra ?? o.price) : NaN);
+  let v = pick(await getJson('https://ve.dolarapi.com/v1/dolares/paralelo'));
+  if (!(v > 0)) {
+    const all = await getJson('https://ve.dolarapi.com/v1/dolares');
+    if (Array.isArray(all)) v = pick(all.find((x) => /paralelo/i.test(`${x && x.fuente} ${x && x.nombre}`)));
+  }
+  return v > 0 ? v : 0;
+}
+/** Lee un índice de historial sin conocer su forma exacta: lista de días, objeto por fecha o envuelto. */
+function parseHistoryIndex(j) {
+  const values = [];
+  const dates = [];
+  const take = (d, v) => {
+    const key = String(d || '').slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) return;
+    const n = v && typeof v === 'object' ? Number(v.USD ?? v.usd ?? v.promedio ?? v.rate ?? v.value) : Number(v);
+    if (n > 0) values.push([key, n]); else dates.push(key);
+  };
+  const walk = (node, depth) => {
+    if (depth > 3 || !node) return;
+    if (Array.isArray(node)) {
+      for (const it of node) {
+        if (typeof it === 'string') take(it, NaN);
+        else if (it && typeof it === 'object') take(it.date ?? it.effective_date ?? it.fecha ?? it.day, it);
+      }
+    } else if (typeof node === 'object') {
+      const keys = Object.keys(node);
+      if (keys.some((k) => /^\d{4}-\d{2}-\d{2}$/.test(k))) for (const k of keys) take(k, node[k]);
+      else for (const k of ['history', 'data', 'rates', 'items', 'days', 'dates', 'results']) walk(node[k], depth + 1);
+    }
+  };
+  walk(j, 0);
+  return { values, dates };
+}
+let histBusy = false;
+/** Completa el historial oficial hacia atrás (una vez al día, con internet y fuera de Claude). */
+async function backfillHistory() {
+  const today = dayKey(new Date());
+  if (histBusy || insideClaude || framed || navigator.onLine === false || mem.get('bolsillo:tasas-relleno') === today) return false;
+  histBusy = true;
+  let added = 0;
+  let reached = false; // ¿respondió alguna fuente? Si no (sin señal), se reintenta en la próxima visita
+  const put = (kind, d, v) => { if (!rateHist[kind][d] && d <= today) { histPut(kind, d, v); added += 1; } };
+  try {
+    const rawIdx = await getJson('https://bcv.today/api/v1/history.json');
+    if (rawIdx) reached = true;
+    const idx = parseHistoryIndex(rawIdx);
+    for (const [d, v] of idx.values) put('bcv', d, v);
+    if (!idx.values.length) {
+      // El índice no trae valores: se piden días sueltos (uno por día la última semana, uno por semana en tres meses, uno por mes hasta un año).
+      const want = [1, 2, 3, 4, 5, 6];
+      for (let i = 7; i <= 91; i += 7) want.push(i);
+      for (let i = 120; i <= 365; i += 30) want.push(i);
+      const known = idx.dates.length ? new Set(idx.dates) : null;
+      const keys = want.map((n) => dayKey(addDays(new Date(), -n))).filter((k) => !rateHist.bcv[k] && (!known || known.has(k)));
+      const worker = async () => {
+        while (keys.length) {
+          const k = keys.shift();
+          const j = await getJson(`https://bcv.today/api/v1/history/${k}.json`, 6000);
+          if (j) reached = true;
+          if (j && Number(j.USD) > 0) put('bcv', k, Number(j.USD));
+        }
+      };
+      await Promise.all([worker(), worker(), worker(), worker()]);
+    }
+    const ph = await getJson('https://ve.dolarapi.com/v1/historicos/dolares/paralelo');
+    if (Array.isArray(ph)) {
+      for (const it of ph) {
+        const d = String((it && it.fecha) || '').slice(0, 10);
+        const v = Number(it && (it.promedio ?? it.venta));
+        const ref = rateOn('bcv', d);
+        // Solo se aceptan valores con sentido frente a la tasa oficial de ese día.
+        if (v > 0 && /^\d{4}-\d{2}-\d{2}$/.test(d) && ref && v > ref * 0.5 && v < ref * 5) put('par', d, v);
+      }
+    }
+  } finally {
+    histBusy = false;
+    if (reached) mem.set('bolsillo:tasas-relleno', today);
+    histSave();
+  }
+  return added > 0;
+}
+
+/* ==========================================================================
+   25. DÓLAR Y BOLÍVAR: cuánto pierde tu dinero
+   ========================================================================== */
+ui.dev = { days: 30, kind: null, amount: 0 };
+const RATE_NAME = { bcv: 'BCV', par: 'Paralelo' };
+function rateChange(kind, days) {
+  const cur = curRate(kind);
+  const past = rateOn(kind, dayKey(addDays(new Date(), -days)));
+  return cur > 0 && past ? cur / past - 1 : null;
+}
+/** Qué les pasó a unos bolívares guardados durante el periodo. amountBs en céntimos de bolívar. */
+function erosion(kind, days, amountBs) {
+  const cur = curRate(kind);
+  if (!(cur > 0)) return null;
+  const today = dayKey(new Date());
+  let from = dayKey(addDays(new Date(), -days));
+  let past = rateOn(kind, from);
+  let real = days;
+  if (!past) { // no hay historial tan atrás: se usa el primer dato que exista
+    const first = histSeries(kind).find(([d]) => d > from && d < today);
+    if (!first) return null;
+    [from, past] = first;
+    real = dayDiff(keyDate(from));
+  }
+  const then = Math.round(amountBs / past);
+  const now = Math.round(amountBs / cur);
+  return { cur, past, from, real, partial: real !== days, then, now, loss: then - now, pct: 1 - past / cur, next: Math.round((amountBs / cur) * (past / cur)) };
+}
+/** Puntos del historial entre una fecha y hoy; el primero arrastra el valor anterior. */
+function ratePoints(kind, from) {
+  const today = dayKey(new Date());
+  const pts = [];
+  const start = rateOn(kind, from);
+  if (start) pts.push([from, start]);
+  for (const [d, v] of histSeries(kind)) if (d > from && d < today) pts.push([d, v]);
+  if (curRate(kind) > 0) pts.push([today, curRate(kind)]);
+  return pts;
+}
+const PERIODS = [[7, '7 días'], [30, '30 días'], [90, '90 días'], [365, '1 año']];
+const periodText = (days) => (days >= 360 ? 'un año' : days >= 85 && days <= 95 ? '3 meses' : days === 1 ? '1 día' : `${days} días`);
+
+function renderRates() {
+  const box = $('#rates-body');
+  if (Pad.target && box.contains(Pad.target)) { paintDev(); return; }
+  const r = state.settings.rates;
+  const mode = state.settings.rateMode === 'par' && r.par > 0 ? 'par' : 'bcv';
+  if (!(r.usd > 0) && !(r.par > 0)) {
+    box.innerHTML = `<section class="card empty"><b>Falta la tasa del día</b>Con la tasa puedo mostrarte el dólar oficial, el paralelo y cuánto valor pierden tus bolívares.
+      <button type="button" class="btn btn--primary" data-go="config" style="margin-top:16px;width:100%">Ir a Ajustes</button></section>`;
+    return;
+  }
+  const d = ui.dev;
+  if (!d.kind || !(curRate(d.kind) > 0)) d.kind = mode;
+  if (!d.amount) d.amount = Math.max(1, Math.round((100 * curRate(d.kind)) / 1000)) * 100000; // lo que hoy valen unos 100 dólares
+  const card = (kind) => {
+    const v = curRate(kind);
+    if (!(v > 0)) {
+      return `<article class="card ratecard"><span class="ratecard__label">${RATE_NAME[kind]}</span><span class="ratecard__value"><small>Bs</small>—</span><span class="ratecard__sub">${insideClaude || framed ? 'Escríbela en Ajustes' : 'Sin dato todavía'}</span></article>`;
+    }
+    const ch = rateChange(kind, 7);
+    const sub = ch === null ? 'Guardando historial' : Math.abs(ch) < 0.0005 ? 'Sin cambio en 7 días' : `${ch > 0 ? '+' : '−'}${pct1(ch)} en 7 días`;
+    return `<article class="card ratecard"><span class="ratecard__label">${RATE_NAME[kind]}${kind === mode ? '<em>En uso</em>' : ''}</span>
+      <span class="ratecard__value"><small>Bs</small>${rateToInput(v)}</span>
+      <span class="ratecard__sub${ch > 0.0005 ? ' is-up' : ''}">${sub}</span></article>`;
+  };
+  const gap = r.usd > 0 && r.par > 0 ? r.par / r.usd - 1 : null;
+  const both = r.usd > 0 && r.par > 0;
+  box.innerHTML = `
+    <div class="pair">${card('bcv')}${card('par')}</div>
+    ${gap !== null ? `<p class="foot" style="text-align:left;padding:0 4px">El paralelo está ${pct1(gap)} ${gap >= 0 ? 'por encima' : 'por debajo'} del oficial. Bolsillo convierte con la tasa marcada «En uso»; se cambia en Ajustes.</p>` : ''}
+    <section class="card box">
+      <div class="card__head"><h2 class="card__title">Cuánto pierde tu dinero</h2>
+        ${both ? `<div class="seg seg--sm" id="dev-kind" style="--n:2;--i:${d.kind === 'par' ? 1 : 0}" role="group" aria-label="Tasa del cálculo"><span class="seg__thumb" aria-hidden="true"></span>
+          <button type="button" data-dk="bcv" aria-pressed="${d.kind === 'bcv'}">BCV</button><button type="button" data-dk="par" aria-pressed="${d.kind === 'par'}">Paralelo</button></div>` : ''}
+      </div>
+      <label class="field-label" for="dev-amount">Si guardas en bolívares</label>
+      <div class="money-input"><span>Bs</span><input id="dev-amount" type="text" inputmode="none" readonly data-pad data-decimals="0" data-label="Bolívares guardados" autocomplete="off" placeholder="0" value="${Math.round(d.amount / 100)}"></div>
+      <div class="seg" id="dev-days" style="--n:4;--i:${PERIODS.findIndex((p) => p[0] === d.days)}" role="group" aria-label="Periodo">
+        <span class="seg__thumb" aria-hidden="true"></span>
+        ${PERIODS.map(([n, t]) => `<button type="button" data-days="${n}" aria-pressed="${n === d.days}">${t}</button>`).join('')}
+      </div>
+      <div class="stack" id="dev-out"></div>
+    </section>
+    <section class="card box">
+      <div class="card__head"><h2 class="card__title">El dólar en bolívares</h2>
+        ${both ? '<div class="legend"><span><i class="dot"></i>BCV</span><span><i class="dot dot--dash"></i>Paralelo</span></div>' : ''}</div>
+      <div id="rate-chart-box"></div>
+    </section>
+    <p class="foot">Tasa oficial: bcv.today. Paralelo: DolarApi. Bolsillo anota la tasa cada día que la abres y, con internet, completa el historial oficial hacia atrás.</p>`;
+  paintDev();
+  backfillHistory().then((changed) => { if (changed && ui.view === 'rates') paintDev(); });
+}
+function paintDev() {
+  const out = $('#dev-out');
+  if (!out) return;
+  const d = ui.dev;
+  const e = erosion(d.kind, d.days, d.amount);
+  const chartBox = $('#rate-chart-box');
+  const waiting = `<p>Todavía no tengo historial de la tasa ${RATE_NAME[d.kind] === 'BCV' ? 'oficial' : 'del paralelo'} para este periodo. ${insideClaude || framed
+    ? 'Dentro de Claude no hay internet; en tu app instalada se completa solo.'
+    : 'Bolsillo la anota cada día que la abres: vuelve en unos días y aquí verás la caída.'}</p>`;
+  if (!e || d.amount <= 0) {
+    out.innerHTML = d.amount <= 0 ? '<p>Escribe cuántos bolívares tienes guardados.</p>' : waiting;
+  } else {
+    const span = periodText(e.real);
+    const max = Math.max(e.then, e.now, 1);
+    const w = (v) => Math.max(4, (v / max) * 100).toFixed(1);
+    const lost = e.pct > 0.0005;
+    out.innerHTML = `
+      <div class="melt" role="img" aria-label="Hace ${span} esos bolívares compraban ${fmt(e.then, 'USD')}; hoy compran ${fmt(e.now, 'USD')}.">
+        <div class="melt__row"><span>Hace ${span}</span><div class="melt__bar"><i style="width:${w(e.then)}%"></i><b>${fmt(e.then, 'USD')}</b></div></div>
+        <div class="melt__row is-now"><span>Hoy</span><div class="melt__bar"><i style="width:${w(e.now)}%"></i><b>${fmt(e.now, 'USD')}</b></div></div>
+        ${lost ? `<div class="melt__row is-next"><span>En ${span} más</span><div class="melt__bar"><i style="width:${w(e.next)}%"></i><b>${fmt(e.next, 'USD')}</b></div></div>` : ''}
+      </div>
+      ${lost
+        ? `<div class="melt__loss"><span class="pill is-neg">${icon('<path d="M12 5v14M6 13l6 6 6-6"/>')}<b class="num">−${fmt(e.loss, 'USD')}</b><span>${pct1(e.pct)} menos</span></span></div>
+           <p class="big">Tus ${fmt(d.amount, 'VES')} compraban <b>${fmt(e.then, 'USD')}</b> hace ${span}. Hoy compran <b>${fmt(e.now, 'USD')}</b>: perdieron <b class="is-neg">${fmt(e.loss, 'USD')}</b> sin que gastaras nada. Si la tasa sigue subiendo igual, en ${span} más comprarán unos ${fmt(e.next, 'USD')}.</p>`
+        : `<p class="big">En este periodo la tasa ${RATE_NAME[d.kind] === 'BCV' ? 'oficial' : 'del paralelo'} no subió: tus bolívares compran lo mismo o más que hace ${span}.</p>`}
+      ${e.partial ? `<p>Solo tengo historial desde el ${fmtShort.format(keyDate(e.from))}, así que el cálculo cubre ${span}.</p>` : ''}
+      <h3 class="field-label" style="margin-top:4px">Lo que compran esos bolívares</h3>
+      <div class="chart" id="dev-chart"></div>`;
+    const pts = ratePoints(d.kind, e.from);
+    if (pts.length >= 2) {
+      drawLine($('#dev-chart'), { dates: pts.map(([k]) => keyDate(k)), series: [{ name: 'Valor en dólares', values: pts.map(([, v]) => Math.round(d.amount / v)) }] },
+        { fmt: (c) => fmt(c, 'USD'), axis: (c) => compactIn(c, 'USD') });
+    }
+  }
+  // Gráfico de las tasas en el mismo periodo.
+  const from = dayKey(addDays(new Date(), -d.days));
+  const a = ratePoints('bcv', from), b = ratePoints('par', from);
+  const keys = [...new Set([...a, ...b].map(([k]) => k))].sort();
+  const usable = [a, b].filter((s) => s.length >= 2);
+  if (keys.length < 2 || !usable.length) { chartBox.innerHTML = waiting; return; }
+  const fill = (pts) => keys.map((k) => { let v = pts[0][1]; for (const [pk, pv] of pts) { if (pk <= k) v = pv; else break; } return Math.round(v * 100); });
+  const series = [];
+  if (a.length >= 2) series.push({ name: 'BCV', values: fill(a) });
+  // El paralelo solo se dibuja si su historial cubre casi todo el periodo; si no, la línea engañaría.
+  const parFrom = histSeries('par').length ? histSeries('par')[0][0] : null;
+  const parCovers = b.length >= 2 && (rateOn('par', from) || (parFrom && dayDiff(keyDate(parFrom)) >= d.days * 0.8));
+  if (parCovers || !series.length) { if (b.length >= 2) series.push({ name: 'Paralelo', values: fill(b) }); }
+  chartBox.innerHTML = '<div class="chart" id="rate-chart"></div>'
+    + (b.length >= 2 && !parCovers && series.length ? `<p>Del paralelo solo tengo historial desde el ${fmtShortYear.format(keyDate(parFrom))}; elige un periodo más corto para verlo.</p>` : '');
+  drawLine($('#rate-chart'), { dates: keys.map(keyDate), series }, { fmt: (c) => fmt(c, 'VES'), axis: (c) => compactIn(c, 'VES') });
+}
+$('#rates-body').addEventListener('click', (e) => {
+  const days = e.target.closest('[data-days]');
+  const kind = e.target.closest('[data-dk]');
+  if (days) { ui.dev.days = Number(days.dataset.days); setSeg($('#dev-days'), PERIODS.findIndex((p) => p[0] === ui.dev.days)); paintDev(); }
+  else if (kind) { ui.dev.kind = kind.dataset.dk; ui.dev.amount = 0; Pad.close(); renderRates(); }
+});
+$('#rates-body').addEventListener('input', (e) => {
+  if (e.target.id !== 'dev-amount') return;
+  ui.dev.amount = parseAmount(e.target.value);
+  paintDev();
+});
+
+/* ==========================================================================
+   26. CONVERSOR CON CALCULADORA
+   ========================================================================== */
+const conv = { cur: 'USD', s: '', kind: null, fresh: false };
+const OPS = '+−×÷';
+const isOp = (c) => c !== '' && OPS.includes(c);
+function calcEval(s) {
+  const tok = s.match(/\d+(?:,\d*)?|,\d+|[+−×÷]/g) || [];
+  while (tok.length && isOp(tok[tok.length - 1])) tok.pop();
+  if (!tok.length) return 0;
+  const nums = [], ops = [];
+  tok.forEach((t) => (isOp(t) ? ops.push(t) : nums.push(parseFloat(t.replace(',', '.')) || 0)));
+  for (let i = 0; i < ops.length;) {
+    if (ops[i] === '×' || ops[i] === '÷') {
+      nums.splice(i, 2, ops[i] === '×' ? nums[i] * nums[i + 1] : nums[i] / nums[i + 1]);
+      ops.splice(i, 1);
+    } else i += 1;
+  }
+  let r = nums[0];
+  ops.forEach((o, i) => { r = o === '+' ? r + nums[i + 1] : r - nums[i + 1]; });
+  return Number.isFinite(r) ? r : NaN;
+}
+const groupNum = (v) => { const [int, dec] = v.split(','); const g = int.replace(/\B(?=(\d{3})+(?!\d))/g, '.'); return dec === undefined ? g : g + ',' + dec; };
+function calcPress(k) {
+  let s = conv.s;
+  const last = s.slice(-1);
+  const cur = s.split(/[+−×÷]/).pop();
+  if (k === 'clear') s = '';
+  else if (k === 'back') s = s.slice(0, -1);
+  else if (k === '=') {
+    const r = calcEval(s);
+    s = Number.isFinite(r) && r > 0 ? String(Math.round(r * 100) / 100).replace('.', ',') : '';
+  } else if (isOp(k)) {
+    if (!s) return;
+    s = isOp(last) ? s.slice(0, -1) + k : s + k;
+  } else if (k === ',') {
+    if (conv.fresh) s = '0,';
+    else if (cur.includes(',')) return;
+    else s += cur ? ',' : '0,';
+  } else {
+    if (conv.fresh) s = '';
+    const now = s.split(/[+−×÷]/).pop();
+    const at = now.indexOf(',');
+    if (at >= 0 ? now.length - at - 1 >= 2 : now.length >= 10) return;
+    if (now === '0') s = s.slice(0, -1);
+    s += k;
+  }
+  conv.fresh = k === '=';
+  conv.s = s.slice(0, 44);
+  paintConv();
+}
+function convValues() {
+  const r = state.settings.rates;
+  const kind = conv.kind;
+  const val = calcEval(conv.s);
+  const ves = vesRate(kind);
+  const eurPerUsd = r.usd > 0 && r.eur > 0 ? r.usd / r.eur : 0;
+  const ok = Number.isFinite(val) && val > 0;
+  const usd = !ok ? 0 : conv.cur === 'USD' ? val : conv.cur === 'VES' ? val / ves : eurPerUsd ? val / eurPerUsd : 0;
+  return { val: ok ? val : 0, bad: !Number.isFinite(val), usd, USD: usd, VES: usd * ves, EUR: usd * eurPerUsd, eurOk: eurPerUsd > 0 };
+}
+function paintConv() {
+  const v = convValues();
+  const hasOp = /[+−×÷]/.test(conv.s);
+  for (const row of $$('#conv-body .conv__row')) {
+    const cur = row.dataset.cur;
+    const on = cur === conv.cur;
+    row.setAttribute('aria-pressed', String(on));
+    const small = $('small', row), big = $('b', row);
+    if (on) {
+      small.textContent = hasOp ? conv.s.replace(/[+−×÷]/g, (o) => ` ${o} `).replace(/\d+(,\d*)?/g, (n) => groupNum(n)) : '';
+      big.textContent = v.bad ? 'No se puede' : hasOp ? fmt(Math.round(v.val * 100), cur) : `${CURRENCIES[cur].prefix ? CURRENCIES[cur].symbol + CURRENCIES[cur].gap : ''}${conv.s ? groupNum(conv.s) : '0'}${CURRENCIES[cur].prefix ? '' : CURRENCIES[cur].gap + CURRENCIES[cur].symbol}`;
+    } else {
+      small.textContent = '';
+      big.textContent = fmt(Math.round(v[cur] * 100), cur);
+    }
+  }
+  const other = conv.kind === 'par' ? 'bcv' : 'par';
+  const alt = $('#conv-alt');
+  if (alt) {
+    const ro = curRate(other);
+    alt.hidden = !(ro > 0 && v.val > 0 && conv.cur !== 'EUR' && curRate(conv.kind) > 0);
+    if (!alt.hidden) {
+      alt.textContent = conv.cur === 'VES'
+        ? `Con la tasa ${other === 'par' ? 'del paralelo' : 'oficial'} serían ${fmt(Math.round((v.val / ro) * 100), 'USD')}.`
+        : `Con la tasa ${other === 'par' ? 'del paralelo' : 'oficial'} serían ${fmt(Math.round(v.usd * ro * 100), 'VES')}.`;
+    }
+  }
+  const save = $('#conv-save');
+  if (save) save.disabled = !(v.val > 0);
+}
+function renderConv() {
+  const box = $('#conv-body');
+  const r = state.settings.rates;
+  if (!(vesRate() > 0)) {
+    box.innerHTML = `<section class="card empty"><b>Falta la tasa del día</b>El conversor necesita saber cuántos bolívares vale un dólar.
+      <button type="button" class="btn btn--primary" data-go="config" style="margin-top:16px;width:100%">Ir a Ajustes</button></section>`;
+    return;
+  }
+  const both = r.usd > 0 && r.par > 0;
+  if (!conv.kind || !(curRate(conv.kind) > 0)) conv.kind = state.settings.rateMode === 'par' && r.par > 0 ? 'par' : r.usd > 0 ? 'bcv' : 'par';
+  const eurOk = r.usd > 0 && r.eur > 0;
+  if (conv.cur === 'EUR' && !eurOk) conv.cur = 'USD';
+  const row = (cur, name) => `<button type="button" class="conv__row" data-cur="${cur}" aria-pressed="false"><span>${name}</span><span class="conv__val"><small></small><b></b></span></button>`;
+  const keys = [['7'], ['8'], ['9'], ['÷', 'op', 'Dividir'], ['4'], ['5'], ['6'], ['×', 'op', 'Multiplicar'], ['1'], ['2'], ['3'], ['−', 'op', 'Restar'], [','], ['0'], ['back', 'fn', 'Borrar'], ['+', 'op', 'Sumar'], ['clear', 'fn', 'Borrar todo'], ['=', 'eq', 'Igual']];
+  box.innerHTML = `
+    ${both ? `<div class="seg seg--lg" id="conv-kind" style="--n:2;--i:${conv.kind === 'par' ? 1 : 0}" role="group" aria-label="Tasa">
+      <span class="seg__thumb" aria-hidden="true"></span>
+      <button type="button" data-ck="bcv" aria-pressed="${conv.kind === 'bcv'}">BCV · ${rateToInput(r.usd)}</button>
+      <button type="button" data-ck="par" aria-pressed="${conv.kind === 'par'}">Paralelo · ${rateToInput(r.par)}</button></div>` : ''}
+    <section class="card conv" aria-live="polite">
+      ${row('USD', 'Dólares')}${row('VES', 'Bolívares')}${eurOk ? row('EUR', 'Euros') : ''}
+    </section>
+    <p class="hint" id="conv-alt" hidden></p>
+    <div class="calc" id="calc">${keys.map(([k, type, label]) => `<button type="button" class="key${type ? ' key--' + type : ''}" data-ck-key="${k}"${k === 'clear' ? ' style="grid-column:span 2"' : ''}${label ? ` aria-label="${label}"` : ''}>${k === 'back' ? icon('<path d="M9 6h10a1.500 1.500 0 0 1 1.500 1.500v9A1.500 1.500 0 0 1 19 18H9l-5.500-6L9 6z"/><path d="M12 9.500l5 5M17 9.500l-5 5"/>') : k === 'clear' ? 'C' : k}</button>`).join('')}</div>
+    <button type="button" class="btn" id="conv-save" disabled>Apuntar como gasto</button>
+    <p class="foot">${both ? '' : `Tasa: ${rateToInput(vesRate(conv.kind))} Bs por dólar. `}Toca una moneda para escribir en ella. Puedes sumar, restar, multiplicar y dividir.</p>`;
+  paintConv();
+}
+$('#conv-body').addEventListener('pointerdown', (e) => {
+  const key = e.target.closest('[data-ck-key]');
+  if (key) { e.preventDefault(); calcPress(key.dataset.ckKey); }
+});
+$('#conv-body').addEventListener('click', (e) => {
+  const key = e.target.closest('[data-ck-key]');
+  if (key && e.detail === 0) { calcPress(key.dataset.ckKey); return; }
+  const row = e.target.closest('.conv__row');
+  const kind = e.target.closest('[data-ck]');
+  if (row && row.dataset.cur !== conv.cur) {
+    // Al cambiar de moneda se conserva el valor ya convertido.
+    const v = convValues()[row.dataset.cur];
+    conv.cur = row.dataset.cur;
+    conv.s = v > 0 ? String(Math.round(v * 100) / 100).replace('.', ',') : '';
+    conv.fresh = true;
+    paintConv();
+  } else if (kind) {
+    conv.kind = kind.dataset.ck;
+    setSeg($('#conv-kind'), conv.kind === 'par' ? 1 : 0);
+    paintConv();
+  } else if (e.target.closest('#conv-save')) {
+    const v = convValues();
+    if (v.val > 0) openSheet(null, { amount: Math.round(v.val * 100), currency: conv.cur, rateKind: conv.kind });
+  }
+});
+
+/* ==========================================================================
+   27. DIVIDIR LA CUENTA
+   Partes iguales, o cada quien lo suyo y el resto entre todos. La propina se reparte en
+   proporción a lo de cada uno y los céntimos sobrantes se asignan para que la suma cuadre.
+   ========================================================================== */
+const split = { cur: 'USD', tip: 0, n: 2, mode: 'equal', names: [], own: [], total: 0 };
+const personName = (i) => (split.names[i] || '').trim() || (i === 0 ? 'Yo' : `Persona ${i + 1}`);
+function splitCalc() {
+  const total = split.total;
+  const n = split.n;
+  const own = Array.from({ length: n }, (_, i) => (split.mode === 'own' ? split.own[i] || 0 : 0));
+  const ownSum = sum(own);
+  const shared = total - ownSum;
+  if (shared < 0) return { error: `Lo de cada quien suma ${fmt(ownSum, split.cur)}, más que el total de la cuenta.` };
+  const base = own.map((o, i) => o + Math.floor(shared / n) + (i < shared % n ? 1 : 0));
+  const tipTotal = Math.round((total * split.tip) / 100);
+  const tips = base.map((b) => (total > 0 ? Math.floor((tipTotal * b) / total) : 0));
+  // Los céntimos sueltos de la propina se reparten desde el final, para compensar los del reparto base.
+  for (let i = n - 1, rest = tipTotal - sum(tips); rest > 0; i = (i - 1 + n) % n, rest -= 1) tips[i] += 1;
+  return { total, tipTotal, grand: total + tipTotal, shared, shares: base.map((b, i) => b + tips[i]) };
+}
+const splitOther = (cents) => {
+  const rate = vesRate();
+  if (!(rate > 0)) return '';
+  return split.cur === 'USD' ? fmt(Math.round(cents * rate), 'VES') : fmt(Math.round(cents / rate), 'USD');
+};
+function paintSplit() {
+  const out = $('#sp-out');
+  if (!out) return;
+  const c = splitCalc();
+  const ready = !c.error && c.total > 0;
+  $('#sp-mine').disabled = !ready;
+  $('#sp-share').disabled = !ready;
+  if (c.error) { out.innerHTML = `<p class="error">${c.error}</p>`; return; }
+  if (!ready) { out.innerHTML = '<p>Escribe el total de la cuenta y verás cuánto paga cada quien.</p>'; return; }
+  out.innerHTML = `
+    <div class="card__head"><h2 class="card__title">Cada quien paga</h2><span class="hint">${split.tip ? `Con ${split.tip} %: ${fmt(c.grand, split.cur)}` : fmt(c.grand, split.cur)}</span></div>
+    <div class="shares">${c.shares.map((s, i) => `<div><span>${escapeHtml(personName(i))}</span><b>${fmt(s, split.cur)}<small>${splitOther(s)}</small></b></div>`).join('')}</div>
+    ${split.mode === 'own' && c.shared > 0 ? `<p>Lo compartido (${fmt(c.shared, split.cur)}) se dividió entre ${split.n}.</p>` : ''}`;
+}
+function renderSplit() {
+  const box = $('#split-body');
+  if (Pad.target && box.contains(Pad.target)) { paintSplit(); return; }
+  const hasVes = vesRate() > 0;
+  if (!hasVes) split.cur = 'USD';
+  const sym = CURRENCIES[split.cur].symbol;
+  box.innerHTML = `
+    <section class="card box">
+      <div class="card__head"><label class="field-label" for="sp-total">Total de la cuenta</label>
+        ${hasVes ? `<div class="seg seg--sm" id="sp-cur" style="--n:2;--i:${split.cur === 'VES' ? 1 : 0}" role="group" aria-label="Moneda de la cuenta"><span class="seg__thumb" aria-hidden="true"></span>
+          <button type="button" data-sc="USD" aria-pressed="${split.cur === 'USD'}">$</button><button type="button" data-sc="VES" aria-pressed="${split.cur === 'VES'}">Bs</button></div>` : ''}</div>
+      <div class="money-input money-input--xl"><span>${sym}</span><input id="sp-total" type="text" inputmode="none" readonly data-pad autocomplete="off" placeholder="0" value="${split.total ? inputFromCents(split.total) : ''}"></div>
+      <span class="field-label" id="sp-tip-label">Propina o servicio</span>
+      <div class="chips" role="radiogroup" aria-labelledby="sp-tip-label">${[0, 10, 15, 20].map((p) => `<button type="button" class="chip" role="radio" data-tip="${p}" aria-checked="${p === split.tip}">${p ? p + ' %' : 'Sin propina'}</button>`).join('')}</div>
+    </section>
+    <section class="card box">
+      <span class="field-label">Entre cuántos</span>
+      <div class="stepper">
+        <button type="button" data-sn="-1" aria-label="Una persona menos" ${split.n <= 2 ? 'disabled' : ''}>${icon(ICO.minus)}</button>
+        <b aria-live="polite">${split.n}<small>personas</small></b>
+        <button type="button" data-sn="1" aria-label="Una persona más" ${split.n >= 20 ? 'disabled' : ''}>${icon(ICO.plus)}</button>
+      </div>
+      <div class="seg seg--lg" id="sp-mode" style="--n:2;--i:${split.mode === 'own' ? 1 : 0}" role="group" aria-label="Cómo se divide">
+        <span class="seg__thumb" aria-hidden="true"></span>
+        <button type="button" data-sm="equal" aria-pressed="${split.mode === 'equal'}">Partes iguales</button>
+        <button type="button" data-sm="own" aria-pressed="${split.mode === 'own'}">Por consumo</button>
+      </div>
+      ${split.mode === 'own' ? `<p>Anota lo que consumió cada uno. Lo que no sea de nadie (entradas, botellas) se reparte entre todos.</p>
+        ${Array.from({ length: split.n }, (_, i) => `<div class="person">
+          <input class="text-input" type="text" maxlength="16" autocomplete="off" data-pname="${i}" aria-label="Nombre de la persona ${i + 1}" placeholder="${i === 0 ? 'Yo' : `Persona ${i + 1}`}" value="${escapeHtml(split.names[i] || '')}">
+          <div class="money-input money-input--sm"><span>${sym}</span><input type="text" inputmode="none" readonly data-pad data-own="${i}" data-label="${escapeHtml(personName(i))}" aria-label="Lo que consumió ${escapeHtml(personName(i))}" autocomplete="off" placeholder="0" value="${split.own[i] ? inputFromCents(split.own[i]) : ''}"></div>
+        </div>`).join('')}` : ''}
+    </section>
+    <section class="card box" id="sp-out"></section>
+    <div class="btn-row">
+      <button type="button" class="btn" id="sp-share">${icon(ICO.share)}Compartir</button>
+      <button type="button" class="btn btn--primary" id="sp-mine">Apuntar mi parte</button>
+    </div>`;
+  paintSplit();
+}
+$('#split-body').addEventListener('input', (e) => {
+  const t = e.target;
+  if (t.id === 'sp-total') split.total = parseAmount(t.value);
+  else if (t.dataset.own !== undefined) split.own[Number(t.dataset.own)] = parseAmount(t.value);
+  else if (t.dataset.pname !== undefined) split.names[Number(t.dataset.pname)] = t.value;
+  else return;
+  paintSplit();
+});
+$('#split-body').addEventListener('click', (e) => {
+  const pick = (attr) => e.target.closest(`[data-${attr}]`);
+  let b;
+  if ((b = pick('tip'))) split.tip = Number(b.dataset.tip);
+  else if ((b = pick('sn'))) split.n = Math.max(2, Math.min(20, split.n + Number(b.dataset.sn)));
+  else if ((b = pick('sm'))) split.mode = b.dataset.sm;
+  else if ((b = pick('sc'))) { split.cur = b.dataset.sc; }
+  else if (e.target.closest('#sp-mine')) {
+    const c = splitCalc();
+    if (!c.error && c.total > 0) openSheet(null, { amount: c.shares[0], currency: split.cur, category: 'comida', note: `Cuenta entre ${split.n}` });
+    return;
+  } else if (e.target.closest('#sp-share')) {
+    const c = splitCalc();
+    if (c.error || !c.total) return;
+    shareText([`Cuenta: ${fmt(c.total, split.cur)}${split.tip ? ` + ${split.tip} % = ${fmt(c.grand, split.cur)}` : ''}`,
+      ...c.shares.map((s, i) => `${personName(i)}: ${fmt(s, split.cur)}${splitOther(s) ? ` (${splitOther(s)})` : ''}`)].join('\n'));
+    return;
+  } else return;
+  Pad.close();
+  renderSplit();
+});
+
+/* ==========================================================================
+   28. RESÚMENES: semana y mes
+   ========================================================================== */
+ui.recap = { mode: 'week', off: 0 };
+function recapRange(mode, off) {
+  const now = new Date();
+  if (mode === 'month') {
+    const from = new Date(now.getFullYear(), now.getMonth() + off, 1);
+    return { from, to: new Date(from.getFullYear(), from.getMonth() + 1, 1) };
+  }
+  const today = startOfDay(now);
+  const from = addDays(today, -((today.getDay() + 6) % 7) + off * 7); // la semana empieza el lunes
+  return { from, to: addDays(from, 7) };
+}
+function periodStats({ from, to }) {
+  const a = from.getTime(), b = to.getTime();
+  const out = { income: 0, spend: 0, saved: 0, goal: 0, count: 0, cats: {}, byDay: {}, top: null };
+  for (const tx of state.transactions) {
+    const date = new Date(tx.date);
+    const t = date.getTime();
+    if (t < a || t >= b) continue;
+    out.count += 1;
+    if (tx.category === 'meta') out.goal += tx.type === 'expense' ? tx.amount : -tx.amount;
+    else if (tx.type === 'income') out.income += tx.amount;
+    else if (tx.category === 'ahorro') out.saved += tx.amount;
+    else {
+      out.spend += tx.amount;
+      out.cats[tx.category] = (out.cats[tx.category] || 0) + tx.amount;
+      const k = dayKey(date);
+      out.byDay[k] = (out.byDay[k] || 0) + tx.amount;
+      if (!out.top || tx.amount > out.top.amount) out.top = tx;
+    }
+  }
+  return out;
+}
+function recapData() {
+  const { mode, off } = ui.recap;
+  const range = recapRange(mode, off);
+  const p = periodStats(range);
+  const prev = periodStats(recapRange(mode, off - 1));
+  const now = new Date();
+  const current = off === 0;
+  const lastDay = addDays(range.to, -1);
+  const days = Math.max(1, Math.round(((current ? addDays(startOfDay(now), 1) : range.to) - range.from) / 864e5));
+  const title = mode === 'month' ? capitalize(fmtMonthYear.format(range.from)) : `Semana del ${fmtShort.format(range.from)} al ${fmtShort.format(lastDay)}`;
+  const kept = p.income - p.spend;
+  const cats = Object.entries(p.cats).sort((x, y) => y[1] - x[1]);
+  const busiest = Object.entries(p.byDay).sort((x, y) => y[1] - x[1])[0];
+  let quiet = 0;
+  for (let i = 0; i < days; i += 1) if (!p.byDay[dayKey(addDays(range.from, i))]) quiet += 1;
+  const prevName = mode === 'month' ? fmtMonth.format(recapRange(mode, off - 1).from) : 'la semana anterior';
+  const say = [];
+  if (prev.spend > 0 && p.spend > 0 && !current) {
+    const diff = (p.spend - prev.spend) / prev.spend;
+    say.push(Math.abs(diff) < 0.01 ? `Gastaste casi lo mismo que ${mode === 'month' ? 'en ' : ''}${prevName}.` : `Gastaste un ${pctText(diff)} ${diff < 0 ? 'menos' : 'más'} que ${mode === 'month' ? 'en ' : ''}${prevName}.`);
+  } else if (prev.spend > 0 && p.spend > 0) {
+    say.push(`${capitalize(prevName)} cerró en ${money(prev.spend)} de gasto; ${mode === 'month' ? 'este mes' : 'esta semana'} vas en ${money(p.spend)}.`);
+  }
+  if (p.income > 0) say.push(kept >= 0 ? `Te quedó el ${pctText(kept / p.income)} de lo que entró.` : `Gastaste ${money(-kept)} más de lo que entró.`);
+  const apart = p.saved + Math.max(0, p.goal);
+  if (apart > 0) say.push(`Apartaste ${money(apart)} entre ahorro y metas.`);
+  // Plan: solo tiene sentido para el mes.
+  const checks = [];
+  if (mode === 'month' && state.plan && (current || off === 0 || p.count)) {
+    const planned = sum(state.plan.items.map((it) => it.amount));
+    const over = state.plan.items.filter((it) => (p.cats[it.category] || 0) > it.amount);
+    checks.push(p.spend <= planned
+      ? ['is-ok', `Gastaste ${money(p.spend)} de los ${money(planned)} del plan.`]
+      : ['is-bad', `Te pasaste del plan por ${money(p.spend - planned)}.`]);
+    if (over.length) checks.push(['is-mid', `Se pasaron de su tope: ${over.map((it) => CAT_LABEL[it.category]).join(', ')}.`]);
+    else if (p.spend > 0) checks.push(['is-ok', 'Ninguna categoría pasó su tope.']);
+    if (state.plan.savings > 0) checks.push(p.saved >= state.plan.savings ? ['is-ok', `Cumpliste el ahorro: ${money(p.saved)}.`] : ['is-mid', `Ahorraste ${money(p.saved)} de ${money(state.plan.savings)}.`]);
+  }
+  return { mode, range, p, prev, current, days, title, kept, cats, busiest, quiet, say, checks, apart };
+}
+function recapText(d) {
+  const lines = [`Bolsillo · ${d.title}`, `Ingresos: ${money(d.p.income)}`, `Gastos: ${money(d.p.spend)}`, `${d.kept >= 0 ? 'Me quedó' : 'Me faltó'}: ${money(Math.abs(d.kept))}`];
+  if (d.apart > 0) lines.push(`Apartado: ${money(d.apart)}`);
+  if (d.cats.length) lines.push('En qué se fue: ' + d.cats.slice(0, 3).map(([c, v]) => `${CAT_LABEL[c]} ${money(v)}`).join(', '));
+  d.checks.forEach(([, t]) => lines.push(t));
+  return lines.join('\n');
+}
+function renderRecap() {
+  const box = $('#recap-body');
+  const now = new Date();
+  const oldest = state.transactions.reduce((a, tx) => Math.min(a, new Date(tx.date).getTime()), now.getTime());
+  const minOff = ui.recap.mode === 'month'
+    ? (new Date(oldest).getFullYear() - now.getFullYear()) * 12 + new Date(oldest).getMonth() - now.getMonth()
+    : -Math.ceil((recapRange('week', 0).from - oldest) / (7 * 864e5));
+  ui.recap.off = Math.max(Math.min(0, minOff), Math.min(0, ui.recap.off));
+  const d = recapData();
+  const p = d.p;
+  const facts = [];
+  if (p.spend > 0) {
+    facts.push(['Gasto promedio por día', money(Math.round(p.spend / d.days))]);
+    facts.push(['Gasto más grande', `${escapeHtml(p.top.note || CAT_LABEL[p.top.category])}, ${money(p.top.amount)}`]);
+    facts.push(['Día con más gasto', `${capitalize(fmtLong.format(keyDate(d.busiest[0])))}, ${money(d.busiest[1])}`]);
+    facts.push(['Días sin gastar', String(d.quiet)]);
+  }
+  facts.push(['Movimientos', String(p.count)]);
+  box.innerHTML = `
+    <div class="seg seg--lg" id="recap-mode" style="--n:2;--i:${d.mode === 'month' ? 1 : 0}" role="group" aria-label="Periodo del resumen">
+      <span class="seg__thumb" aria-hidden="true"></span>
+      <button type="button" data-rm="week" aria-pressed="${d.mode === 'week'}">Semana</button>
+      <button type="button" data-rm="month" aria-pressed="${d.mode === 'month'}">Mes</button>
+    </div>
+    <div class="monthnav">
+      <button type="button" class="icon-btn" data-rnav="-1" aria-label="Anterior" ${ui.recap.off <= minOff ? 'disabled' : ''}>${icon('<path d="M14.5 6 8.500 12l6 6"/>')}</button>
+      <b>${escapeHtml(d.title)}</b>
+      <button type="button" class="icon-btn" data-rnav="1" aria-label="Siguiente" ${d.current ? 'disabled' : ''}>${icon(ICO.chev)}</button>
+    </div>
+    ${p.count ? `
+    <section class="card box">
+      ${d.current ? `<span class="recap__badge">En curso</span>` : ''}
+      <div class="kpis">
+        <div class="kpi"><span><i class="dot dot--in"></i>Ingresos</span><b>${money(p.income)}</b></div>
+        <div class="kpi"><span><i class="dot dot--out"></i>Gastos</span><b>${money(p.spend)}</b></div>
+        <div class="kpi kpi--wide"><span>${d.kept >= 0 ? 'Te quedó' : 'Te faltó'}</span><b>${money(Math.abs(d.kept))}</b></div>
+      </div>
+      ${d.say.length ? `<p class="say">${d.say.join(' ')}</p>` : ''}
+    </section>
+    ${d.checks.length ? `<section class="card box"><h2 class="card__title">Cómo te fue con el plan</h2>
+      <ul class="checks">${d.checks.map(([cls, t]) => `<li class="${cls}">${icon(cls === 'is-ok' ? ICO.check : ICO.alert)}<span>${t}</span></li>`).join('')}</ul></section>` : ''}
+    ${d.cats.length ? `<section class="card box"><h2 class="card__title">En qué se fue</h2>
+      ${d.cats.slice(0, 4).map(([id, amount]) => `<div class="catbar">
+        <span class="row__ico">${catIcon(id)}</span>
+        <div class="catbar__top"><b>${CAT_LABEL[id]}</b><span><strong>${money(amount)}</strong> · ${pctText(amount / p.spend)}</span></div>
+        <div class="meter"><i style="width:${Math.max(2, (amount / d.cats[0][1]) * 100).toFixed(1)}%"></i></div></div>`).join('')}</section>` : ''}
+    <section class="card box"><h2 class="card__title">Datos ${d.mode === 'month' ? 'del mes' : 'de la semana'}</h2>
+      <ul class="facts">${facts.map(([k, v]) => `<li><span>${k}</span><b>${v}</b></li>`).join('')}</ul></section>
+    <button type="button" class="btn" id="recap-share">${icon(ICO.share)}Compartir resumen</button>`
+    : `<section class="card empty"><b>Sin movimientos</b>No anotaste nada en ${d.mode === 'month' ? 'este mes' : 'esta semana'}.</section>`}`;
+}
+$('#recap-body').addEventListener('click', (e) => {
+  const mode = e.target.closest('[data-rm]');
+  const nav = e.target.closest('[data-rnav]');
+  if (mode) { ui.recap.mode = mode.dataset.rm; ui.recap.off = 0; }
+  else if (nav) ui.recap.off += Number(nav.dataset.rnav);
+  else if (e.target.closest('#recap-share')) { shareText(recapText(recapData())); return; }
+  else return;
+  renderRecap();
+});
+
 function renderView() {
   if (ui.view === 'stats') renderStats();
   else if (ui.view === 'plan') renderPlan();
   else if (ui.view === 'invest') renderInvest();
+  else if (ui.view === 'rates') renderRates();
+  else if (ui.view === 'conv') renderConv();
+  else if (ui.view === 'split') renderSplit();
+  else if (ui.view === 'recap') renderRecap();
 }
+
+/* ---- Ajustes: paralelo y tasa en uso ---- */
+function rateStatusText() {
+  const r = state.settings.rates;
+  const base = rateStatusBase();
+  return r.par > 0 && r.parUpdatedAt ? `${base} Paralelo actualizado ${formatWhen(r.parUpdatedAt)}.` : base;
+}
+$('#s-rate-par').addEventListener('input', (e) => {
+  e.target.value = e.target.value.replace(/[^\d.,]/g, '');
+  const r = state.settings.rates;
+  r.par = parseRate(e.target.value);
+  r.parUpdatedAt = new Date().toISOString();
+  if (!(r.par > 0)) state.settings.rateMode = 'bcv';
+  rateError('');
+  persist();
+  render();
+});
+$('#s-rate-par').addEventListener('blur', renderSettings);
+for (const id of ['#s-rate-usd', '#s-rate-par']) $(id).addEventListener('change', recordRates);
+$('#s-ratemode').addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-ratemode]');
+  if (!b || b.dataset.ratemode === state.settings.rateMode) return;
+  state.settings.rateMode = b.dataset.ratemode;
+  persist();
+  render();
+  toast(state.settings.rateMode === 'par' ? 'Ahora se convierte con el paralelo' : 'Ahora se convierte con la tasa oficial');
+});
 
 /* ==========================================================================
    14. ARRANQUE
@@ -3888,6 +5520,7 @@ document.addEventListener('visibilitychange', () => {
   if (state.settings.quickAdd && away > 1000 && !typing && !el.app.classList.contains('sheet-open')) openSheet();
 });
 autoRefreshRate();
+{ const u = state.settings.rates.updatedAt; if (u && dayDiff(new Date(u)) === 0) recordRates(); }
 
 /* Icono para "Añadir a pantalla de inicio" en iOS (necesita PNG, lo dibujamos al vuelo). */
 try {
